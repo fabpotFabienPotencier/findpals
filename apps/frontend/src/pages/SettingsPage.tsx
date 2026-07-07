@@ -31,7 +31,7 @@ export const SettingsPage = () => {
                 setLoading(false);
             }
         };
-        social load();
+        load();
     }, []);
 
     const handleRevoke = async (id: string) => {

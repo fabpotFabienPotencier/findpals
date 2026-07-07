@@ -99,7 +99,7 @@ export const FeedPage = () => {
                 setLoading(false);
             }
         };
-        social load();
+        load();
     }, [page]);
 
     const handleCreatePost = async () => {

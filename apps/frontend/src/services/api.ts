@@ -2,7 +2,7 @@ import axios from 'axios';
 import { secureStorage } from '../utils/secureStorage';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8023';
-const CDN_URL = import.meta.env.VITE_CDN_URL || '';
+export const CDN_URL = import.meta.env.VITE_CDN_URL || '';
 
 export const api = axios.create({
     baseURL: API_URL,

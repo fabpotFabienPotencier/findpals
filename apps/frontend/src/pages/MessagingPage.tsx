@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { Send, Phone, Video, Info, Paperclip, Smile, Loader2 } from 'lucide-react';
 import { secureStorage } from '../utils/secureStorage';
@@ -76,7 +76,7 @@ export const MessagingPage = () => {
             };
         };
 
-        social init();
+        init();
     }, [currentChatId]);
 
     const handleSend = () => {

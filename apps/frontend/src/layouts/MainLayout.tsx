@@ -1,4 +1,4 @@
-import React from 'react';
+import { type ReactNode } from 'react';
 import { motion } from 'framer-motion';
 import { Home, MessageSquare, Tv, User, Bell, Settings, Zap, DollarSign } from 'lucide-react';
 
@@ -13,7 +13,7 @@ const SidebarItem = ({ icon: Icon, label, active = false }: { icon: any, label: 
     </motion.div>
 );
 
-export const MainLayout = ({ children }: { children: React.ReactNode }) => {
+export const MainLayout = ({ children }: { children: ReactNode }) => {
     return (
         <div className="flex h-screen bg-[#0a0b1e] text-slate-200 overflow-hidden font-sans">
             {/* Sidebar */}
@@ -59,7 +59,7 @@ export const MainLayout = ({ children }: { children: React.ReactNode }) => {
                     </div>
                 </header>
 
-                <div className="p-1?8 max-w-4xl mx-auto">
+                <div className="p-8 max-w-4xl mx-auto">
                     {children}
                 </div>
             </main>

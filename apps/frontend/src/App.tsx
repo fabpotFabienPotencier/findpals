@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { MainLayout } from './layouts/MainLayout';
 import { FeedPage } from './pages/FeedPage';
 import { MessagingPage } from './pages/MessagingPage';
@@ -46,7 +46,7 @@ function App() {
         return (
             <div className="min-h-screen bg-[#050505] text-white">
                 <OnboardingPage onComplete={(m) => {
-                    setMode(m);
+                    setMode(m as 'communication-only' | 'general');
                     // Successfully logged in, redirect to social feed
                     localStorage.setItem('auth_token', 'temp_mock_token');
                     window.location.href = 'https://social.findpals.xyz';
