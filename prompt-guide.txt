@@ -1,0 +1,302 @@
+You are a full-stack AI software architect and developer. Your task is to build the findpals social platform fully from scratch, following these instructions exactly.
+Do not install or run any dependencies in this Windows environment. All installations, testing, and deployment must happen in the cloud.
+
+1️⃣ Tech Stack
+
+Backend:
+
+Node.js (TypeScript preferred)
+
+NestJS framework
+
+Real-time: WebSockets (Socket.io) for messaging/feed, WebRTC for calls/live streaming
+
+Encryption: AES-256 + RSA/ECC hybrid keys, forward secrecy
+
+Database: PostgreSQL (encrypted fields), Redis (caching & real-time state)
+
+Frontend (Web & PWA):
+
+React.js + TypeScript
+
+TailwindCSS styling
+
+Framer Motion for animations
+
+Mobile-first responsive design
+
+Mobile Apps:
+
+Flutter (cross-platform Android/iOS)
+
+Push notifications: Firebase/OneSignal
+
+Offline caching & encrypted storage
+
+Design Style:
+
+Dark/neon cyber aesthetic (findpals branding)
+
+Rounded corners, soft shadows
+
+Clean typography
+
+Infinite scroll for feeds & Reels
+
+Smooth vertical scrolling for FYP feed
+
+Live stream overlay UI (chat, reactions, tipping)
+
+2️⃣ Features (Full A → Z)
+
+Onboarding:
+
+Choose Communication-only or General mode
+
+General mode: 18+ warning & consent
+
++18 content default OFF
+
+Encrypted consent logging with timestamp & device hash
+
+Accounts & Identity:
+
+Pseudonymous / anonymous usernames
+
+Burner accounts supported
+
+Multi-device login
+
+Device-bound cryptographic identity
+
+2FA + recovery keys
+
+Messaging:
+
+1:1 chats, group chats, secret chats, scheduled messages
+
+Media/file sharing, typing & read indicators
+
+Calls & Live Rooms:
+
+Encrypted voice/video calls, group calls, screen sharing
+
+Live audio/video rooms
+
+Host-controlled recording
+
+Live Streaming:
+
+Public/private/followers/subscribers/PPV/invite-only streams
+
+Encrypted chat & reactions
+
+Clips, highlights, replay
+
+IP logging only for monetized streams
+
+Feed / Social Mode:
+
+Timeline, posts, stories, Reels, comments
+
+Likes, reactions, shares, pinned posts
+
+Paid/locked content & creator posts
+
+Infinite scrolling, algorithmic FYP feed (trending, engagement, creator preference)
+
+Creator Economy & Monetization:
+
+Subscriptions, PPV content, paid posts, live streams
+
+Tips, donations, revenue dashboards
+
+Wallet & withdrawals
+
+Privacy & Control:
+
+Block/mute users
+
++18 toggle & sensitive content blur
+
+Online/offline visibility
+
+Session/device management
+
+Data export & account self-destruct
+
+Gamification:
+
+XP, levels, badges, streaks, achievements
+
+Event rewards & cosmetic perks
+
+Fully opt-out
+
+AI Features:
+
+Feed ranking & trending algorithm
+
+Spam/bot detection & infra protection
+
+Creator analytics dashboard & onboarding assistant
+
+❌ No AI content moderation
+
+Admin & Infrastructure:
+
+Non-default port (8023)
+
+Reverse proxy & CDN integration
+
+Load balancing, scaling, failover
+
+DDoS & exploit protection
+
+Audit logs (infra & monetization only)
+
+Legal & Consent:
+
+Encrypted consent logs
+
+Versioned agreements
+
++18 opt-in content only
+
+Legal preservation of logs
+
+3️⃣ Modular Build Order (Step-by-Step)
+
+Phase 0 — Prep:
+
+Initialize project repo with modular structure
+
+Setup cloud-based environment (Docker/Kubernetes, non-default port, reverse proxy, CDN)
+
+Phase 1 — Core Backend Services:
+
+Auth & Identity service
+
+Messaging service
+
+Feed & Social service
+
+Calls & Live Rooms service
+
+Live Streaming service
+
+Creator Economy service
+
+Gamification service
+
+AI Assistance service
+
+Phase 2 — Backend Integration & APIs:
+
+Connect all services via REST + WebSockets
+
+Verify encryption & real-time sync
+
+Phase 3 — Frontend (Web & PWA):
+
+Login & onboarding pages
+
+Messaging & calls UI
+
+Feed, posts, Reels, stories, comments
+
+Live streaming pages
+
+Gamification & wallet UI
+
+Privacy & settings UI
+
+Phase 4 — Mobile Apps (Flutter):
+
+Real-time messaging, calls, streaming
+
+FYP feed, Reels, stories, comments
+
+Wallet & monetization
+
+Gamification
+
+Privacy & settings
+
+Push notifications & offline caching
+
+Phase 5 — AI Features Integration:
+
+FYP feed algorithm
+
+Feed ranking & trending
+
+Spam/bot detection & infra monitoring
+
+Creator analytics
+
+Onboarding assistant
+
+Phase 6 — Admin & Infrastructure:
+
+Non-default port configuration
+
+Reverse proxy & CDN setup
+
+Load balancing & auto-scaling
+
+DDoS protection
+
+Audit logs
+
+Deployment scripts (Docker/K8s)
+
+Phase 7 — Testing & QA:
+
+Unit tests, integration tests, encryption/security tests
+
+Load testing for real-time sync
+
+Cross-device mobile & PWA testing
+
+Phase 8 — Documentation:
+
+Developer docs, API references, privacy/consent whitepapers
+
+User guides & consent/legal explanation
+
+4️⃣ Deliverables
+
+Backend code + APIs (Node.js/NestJS + WebSockets/WebRTC)
+
+Frontend code (React + Tailwind + PWA)
+
+Mobile apps (Flutter Android/iOS)
+
+Database schemas & migrations (PostgreSQL + Redis)
+
+Real-time integration fully functional
+
+Wallet & monetization system
+
+Gamification system
+
+Legal consent & +18 toggles
+
+Admin dashboards
+
+Deployment scripts (Docker/Kubernetes)
+
+Full documentation (developer + user + privacy)
+
+💡 Instructions Recap for AI:
+
+Build module by module in the sequence provided.
+
+All encryption & privacy features must be implemented correctly.
+
+No local installation — cloud-only environment.
+
+Follow tech stack and design style exactly.
+
+Ensure real-time sync, infinite scroll, FYP, Reels, live streaming, monetization, and gamification work end-to-end.

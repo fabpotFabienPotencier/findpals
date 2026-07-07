@@ -1,0 +1,46 @@
+version: '3.8'
+
+# ============================================================
+# findpals Backend Infrastructure
+# ============================================================
+# Frontend is deployed on Vercel (not in this compose file).
+# Database is on Neon (managed serverless Postgres).
+# This file only runs: Backend API + Redis cache.
+# ============================================================
+
+services:
+  backend:
+    build:
+      context: ../apps/backend
+      dockerfile: Dockerfile
+    container_name: findpals_api
+    restart: unless-stopped
+    ports:
+      - "8023:8023"
+    env_file:
+      - ../.env
+    environment:
+      - NODE_ENV=production
+    depends_on:
+      - redis
+    networks:
+      - findpals_net
+
+  redis:
+    image: redis:7-alpine
+    container_name: findpals_redis
+    restart: unless-stopped
+    command: redis-server --maxmemory 256mb --maxmemory-policy allkeys-lru
+    ports:
+      - "127.0.0.1:6379:6379"  # Bind to localhost only — not exposed to public
+    volumes:
+      - redis_data:/data
+    networks:
+      - findpals_net
+
+networks:
+  findpals_net:
+    driver: bridge
+
+volumes:
+  redis_data:

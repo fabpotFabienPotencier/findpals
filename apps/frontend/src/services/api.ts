@@ -1,0 +1,134 @@
+import axios from 'axios';
+import { secureStorage } from '../utils/secureStorage';
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8023';
+const CDN_URL = import.meta.env.VITE_CDN_URL || '';
+
+export const api = axios.create({
+    baseURL: API_URL,
+    headers: {
+        'Content-Type': 'application/json',
+    },
+    withCredentials: true, // Send cookies for cross-subdomain auth
+});
+
+api.interceptors.request.use(async (config) => {
+    const token = await secureStorage.getItem('auth_token');
+    if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+});
+
+// ── Auth ──────────────────────────────────────────────────
+
+export const auth = {
+    login: (username: string, password: string, twoFactorCode?: string, deviceId?: string) =>
+        api.post('/auth/login', { username, password, twoFactorCode, deviceId }),
+    register: (username: string, password: string, email: string, mode: string, consent: boolean) =>
+        api.post('/auth/register', { username, password, email, mode, consent }),
+    verifyEmail: (token: string) =>
+        api.get('/auth/verify-email', { params: { token } }),
+    resendVerification: () =>
+        api.post('/auth/resend-verification'),
+    forgotPassword: (email: string) =>
+        api.post('/auth/forgot-password', { email }),
+    resetPassword: (token: string, newPassword: string) =>
+        api.post('/auth/reset-password', { token, newPassword }),
+    setupTwoFactor: () =>
+        api.post('/auth/2fa/setup'),
+    getMe: () =>
+        api.get('/auth/me'),
+    sessions: () => api.get('/auth/sessions'),
+    revokeSession: (sessionId: string) => api.post('/auth/sessions/revoke', { sessionId }),
+};
+
+// ── Users ─────────────────────────────────────────────────
+
+export const users = {
+    getMyProfile: () =>
+        api.get('/users/me'),
+    updateProfile: (data: { displayName?: string; bio?: string; avatarUrl?: string }) =>
+        api.patch('/users/me', data),
+    getProfile: (userId: string) =>
+        api.get(`/users/${userId}`),
+    search: (query: string, limit?: number) =>
+        api.get('/users/search', { params: { q: query, limit } }),
+    follow: (userId: string) =>
+        api.post(`/users/${userId}/follow`),
+    unfollow: (userId: string) =>
+        api.delete(`/users/${userId}/follow`),
+    getFollowers: (userId: string, page?: number) =>
+        api.get(`/users/${userId}/followers`, { params: { page } }),
+    getFollowing: (userId: string, page?: number) =>
+        api.get(`/users/${userId}/following`, { params: { page } }),
+    isFollowing: (userId: string) =>
+        api.get(`/users/${userId}/is-following`),
+};
+
+// ── Feed ──────────────────────────────────────────────────
+
+export const feed = {
+    list: (page: number, limit: number) =>
+        api.get('/feed', { params: { page, limit } }),
+    create: (authorId: string, content: string, type: 'post' | 'reel' | 'story' = 'post', mediaUrl?: string) =>
+        api.post('/feed/post', { authorId, content, type, mediaUrl }),
+    comment: (postId: string, authorId: string, content: string) =>
+        api.post('/feed/comment', { postId, authorId, content }),
+};
+
+// ── Live ──────────────────────────────────────────────────
+
+export const live = {
+    createRoom: (title: string, accessMode: string, price?: number, isRecordingRequested?: boolean) =>
+        api.post('/live/rooms', { title, accessMode, price, isRecordingRequested }),
+    tipRoom: (roomId: string, amount: number) =>
+        api.post(`/live/rooms/${roomId}/tip`, { amount }),
+    saveRecording: (roomId: string, recordingUrl: string) =>
+        api.post(`/live/rooms/${roomId}/recording`, { recordingUrl }),
+};
+
+// ── Payments ──────────────────────────────────────────────
+
+export const payments = {
+    flutterwaveInitialize: (amount: number, currency: string, redirectUrl: string) =>
+        api.post('/payments/flutterwave/initialize', { amount, currency, redirectUrl }),
+    flutterwaveVerify: (txRef: string) =>
+        api.get('/payments/flutterwave/verify', { params: { tx_ref: txRef } }),
+};
+
+// ── Upload (Cloudflare R2) ────────────────────────────────
+
+export const upload = {
+    getPresignedUrl: (folder: string, filename: string, contentType: string) =>
+        api.post('/upload/presign', { folder, filename, contentType }),
+
+    /**
+     * Upload a file directly to R2 using a presigned URL.
+     * Returns the public CDN URL of the uploaded file.
+     */
+    uploadFile: async (file: File, folder: string = 'uploads'): Promise<string> => {
+        // Step 1: Get presigned URL from backend
+        const { data } = await api.post('/upload/presign', {
+            folder,
+            filename: file.name,
+            contentType: file.type,
+        });
+
+        // Step 2: Upload directly to R2
+        await fetch(data.uploadUrl, {
+            method: 'PUT',
+            headers: { 'Content-Type': file.type },
+            body: file,
+        });
+
+        // Step 3: Return the public URL
+        return data.publicUrl;
+    },
+};
+
+// ── Health ────────────────────────────────────────────────
+
+export const health = {
+    check: () => api.get('/health'),
+};

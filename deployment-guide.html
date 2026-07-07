@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>findpals | Deployment Protocol</title>
+    <style>
+        :root {
+            --bg-color: #050505;
+            --card-bg: #111111;
+            --primary: #00ff9d;
+            --secondary: #d600ff;
+            --text: #e0e0e0;
+            --code-bg: #1a1a1a;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text);
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        h1,
+        h2,
+        h3 {
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 0 0 10px rgba(0, 255, 157, 0.3);
+        }
+
+        .subtitle {
+            text-align: center;
+            color: var(--secondary);
+            margin-bottom: 50px;
+            font-family: monospace;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border: 1px solid #333;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        .card h2 {
+            border-bottom: 1px solid #333;
+            padding-bottom: 15px;
+            margin-top: 0;
+        }
+
+        code,
+        pre {
+            background-color: var(--code-bg);
+            color: #fff;
+            font-family: 'Consolas', 'Monaco', monospace;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+
+        pre {
+            padding: 15px;
+            overflow-x: auto;
+            border-left: 3px solid var(--secondary);
+        }
+
+        .step {
+            display: flex;
+            margin-bottom: 20px;
+        }
+
+        .step-number {
+            background-color: var(--secondary);
+            color: #fff;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+
+        .step-content {
+            flex-grow: 1;
+        }
+
+        .warning {
+            color: #ff4757;
+            font-weight: bold;
+            border: 1px solid #ff4757;
+            padding: 10px;
+            border-radius: 6px;
+            background: rgba(255, 71, 87, 0.1);
+        }
+
+        footer {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <h1>findpals</h1>
+        <div class="subtitle">SYSTEM DEPLOYMENT PROTOCOL v1.0</div>
+
+        <div class="card">
+            <h2>1. Architecture Overview</h2>
+            <p>The findpals platform is architected as a containerized micro-services cluster, deployed on a cloud
+                server.</p>
+            <ul>
+                <li><strong>Domain:</strong> <code>findpals.xyz</code></li>
+                <li><strong>Server IP:</strong> <code>8.222.200.150</code></li>
+                <li><strong>Frontend:</strong> React + Vite (served via Nginx) - Port 3000 (internal), 80/443 (public)
+                </li>
+                <li><strong>Backend:</strong> NestJS API + WebSockets - Port <code>8023</code> (non-default as required)
+                </li>
+                <li><strong>Database:</strong> PostgreSQL 15 - Port 5432</li>
+                <li><strong>Cache:</strong> Redis 7 - Port 6379</li>
+                <li><strong>Mobile:</strong> Flutter (Android APK / iOS build)</li>
+            </ul>
+        </div>
+
+        <div class="card">
+            <h2>2. Prerequisites</h2>
+            <p>Ensure the deployment server (Cloud/VPS) has the following installed:</p>
+            <ul>
+                <li>Docker Engine (v20.10+)</li>
+                <li>Docker Compose (v2.0+)</li>
+                <li>Git</li>
+            </ul>
+        </div>
+
+        <div class="card">
+            <h2>3. Environment Configuration</h2>
+            <p>Create a <code>.env</code> file in the root directory of the project on the cloud server. Do not commit
+                this to version control.</p>
+            <pre>
+# Database
+DB_HOST=db
+DB_PORT=5432
+DB_USER=findpals_admin
+DB_PASSWORD=YOUR_SECURE_PASSWORD_HERE
+DB_NAME=findpals_social
+
+# Backend
+PORT=8023
+DATABASE_URL=postgresql://findpals_admin:YOUR_SECURE_PASSWORD_HERE@db:5432/findpals_social
+REDIS_URL=redis://redis:6379
+JWT_SECRET=YOUR_SUPER_SECRET_JWT_KEY
+ENCRYPTION_SECRET=YOUR_32_CHAR_LONG_ENCRYPTION_KEY_LEGIT
+
+# Payments (Flutterwave)
+FLUTTERWAVE_API_URL=https://api.flutterwave.com/v3
+FLUTTERWAVE_SECRET_KEY=YOUR_FLW_SECRET_KEY
+# Set this to the "Secret Hash" you configure in Flutterwave webhook settings (verif-hash header)
+FLUTTERWAVE_WEBHOOK_SECRET_HASH=YOUR_FLW_WEBHOOK_SECRET_HASH
+
+# Frontend (public API endpoint)
+VITE_API_URL=https://findpals.xyz/api
+            </pre>
+            <div class="warning">⚠ CRITICAL: Change default passwords and secrets before production launch.</div>
+        </div>
+
+        <div class="card">
+            <h2>4. Cloud Docker Deployment</h2>
+            <p>These steps assume a fresh cloud server (for example, the host at <code>8.222.200.150</code>) with DNS
+                for <code>findpals.xyz</code> pointing to that IP.</p>
+            <div class="step">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                    <strong>DNS & Firewall</strong>
+                    <ul>
+                        <li>Create an A record for <code>findpals.xyz</code> → <code>8.222.200.150</code>.</li>
+                        <li>Open ports <code>80</code> and <code>443</code> (HTTP/HTTPS) and <code>8023</code> (backend
+                            API/WebSockets) in your cloud firewall.</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                    <strong>Clone & Setup</strong>
+                    <pre>ssh ubuntu@8.222.200.150
+git clone https://github.com/your-repo/findpals2.git
+cd findpals2
+cp .env.example .env   # or create .env as shown above</pre>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                    <strong>Build & Launch Containers</strong>
+                    <p>This will build the NestJS backend and the React frontend (production build) and attach Nginx as
+                        reverse proxy/CDN edge.</p>
+                    <pre>cd infra
+docker-compose up -d --build</pre>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-number">4</div>
+                <div class="step-content">
+                    <strong>Verify Status</strong>
+                    <pre>docker-compose ps</pre>
+                    <p>Ensure all services (<code>db</code>, <code>redis</code>, <code>backend</code>,
+                        <code>frontend</code>, <code>nginx</code>) are "Up".
+                    </p>
+                    <p>Once running, the platform should be reachable at
+                        <code>https://findpals.xyz</code>.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>5. Mobile App Build (Flutter)</h2>
+            <p>The mobile app must be built separately.</p>
+            <pre>
+cd apps/mobile
+# Build for Android
+docker build -t findpals-mobile .
+# Extract APK
+docker create --name mobile_temp findpals-mobile
+docker cp mobile_temp:/app-release.apk ./findpals.apk
+docker rm mobile_temp
+            </pre>
+            <p>Distribute the <code>findpals.apk</code> to beta testers.</p>
+        </div>
+
+        <div class="card">
+            <h2>6. Post-Deployment Checks</h2>
+            <ul>
+                <li><strong>API Health:</strong> <code>curl https://findpals.xyz/api/health</code> (if implemented) or
+                    check backend logs using <code>docker logs findpals_social_backend</code>.</li>
+                <li><strong>WebSocket:</strong> Verify WebSocket connectivity from the frontend (messaging and live
+                    room events) to <code>wss://findpals.xyz/socket.io</code> and the <code>/live</code> namespace.
+                </li>
+                <li><strong>Database:</strong> Ensure migrations/auto-sync ran correctly. For MVP,
+                    <code>synchronize: true</code> is enabled; disable it and use explicit migrations before
+                    full-scale production.
+                </li>
+                <li><strong>TLS/HTTPS:</strong> Attach a TLS certificate for <code>findpals.xyz</code> (e.g. via
+                    Let's Encrypt / certbot) on the Nginx container or your cloud provider's load balancer, then ensure
+                    all traffic is forced to HTTPS.</li>
+            </ul>
+        </div>
+
+        <footer>
+            &copy; 2026 findpals Inc. | Authorized Personnel Only
+        </footer>
+    </div>
+
+</body>
+
+</html>
