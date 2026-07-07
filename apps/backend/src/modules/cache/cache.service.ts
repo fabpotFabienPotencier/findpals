@@ -22,6 +22,11 @@ export class CacheService implements OnModuleInit, OnModuleDestroy {
                 lazyConnect: true,
             });
 
+            this.client.on('error', (err) => {
+                // Ignore errors here to prevent Unhandled Promise Rejections from crashing the app
+                // It will retry based on retryStrategy, and if it fails, get/set will gracefully degrade.
+            });
+
             await this.client.connect();
             console.log('[CacheService] Redis connected successfully');
         } catch (error) {
