@@ -45,7 +45,7 @@ export const MainLayout = ({
             {/* Mobile Top Header (only visible on small screens) */}
             <header className="md:hidden flex justify-between items-center px-4 py-3 border-b border-white/10 bg-black z-20">
                 <h1 className="text-xl font-black italic tracking-tighter cursor-pointer" onClick={() => setCurrentPage('feed')}>
-                    Pulse<span className="text-blue-500">Net</span>
+                    findpals<span className="text-blue-500">social</span>
                 </h1>
                 <div className="flex items-center gap-3">
                     <button className="text-slate-300 hover:text-white transition-colors" onClick={() => setCurrentPage('notifications')}>
@@ -65,7 +65,7 @@ export const MainLayout = ({
             <aside className="hidden md:flex flex-col w-64 border-r border-white/10 bg-[#0a0a0a]">
                 <div className="p-8">
                     <h1 className="text-2xl font-black italic tracking-tighter cursor-pointer" onClick={() => setCurrentPage('feed')}>
-                        Pulse<span className="text-blue-500">Net</span>
+                        findpals<span className="text-blue-500">social</span>
                     </h1>
                 </div>
                 <nav className="flex-1 px-4 space-y-2 mt-4">
@@ -89,7 +89,7 @@ export const MainLayout = ({
                 <header className="hidden md:flex sticky top-0 z-20 backdrop-blur-md bg-black/80 border-b border-white/10 px-8 py-4 justify-between items-center">
                     <div className="flex items-center gap-2">
                         <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse shadow-[0_0_8px_rgba(0,85,255,0.8)]" />
-                        <span className="text-xs font-mono text-slate-500 uppercase tracking-widest">PulseNet Secure</span>
+                        <span className="text-xs font-mono text-slate-500 uppercase tracking-widest">FindPals Secure</span>
                     </div>
                     <div className="flex items-center gap-4">
                         <button className="px-4 py-2 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20 text-sm font-bold hover:bg-blue-500/20 transition-all">

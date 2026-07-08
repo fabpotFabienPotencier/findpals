@@ -9,7 +9,7 @@ export const ProfilePage = ({ userProfile, setCurrentPage }: { userProfile?: any
     const [loading, setLoading] = useState(!userProfile);
     const [posts, setPosts] = useState<FeedPost[]>([]);
     const [loadingPosts, setLoadingPosts] = useState(false);
-    const [activeTab, setActiveTab] = useState<'posts' | 'reels' | 'pulse' | 'saved' | 'tagged'>('posts');
+    const [activeTab, setActiveTab] = useState<'posts' | 'reels' | 'live' | 'saved' | 'tagged'>('posts');
 
     useEffect(() => {
         const loadProfile = async () => {
@@ -123,7 +123,7 @@ export const ProfilePage = ({ userProfile, setCurrentPage }: { userProfile?: any
                     <div className="flex items-center gap-2 mt-1">
                         <span className="text-slate-400 text-sm">@{handle}</span>
                         <span className="px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 text-[10px] font-bold uppercase tracking-wider">
-                            PulseNet+
+                            FindPals+
                         </span>
                     </div>
                 </div>
@@ -134,7 +134,7 @@ export const ProfilePage = ({ userProfile, setCurrentPage }: { userProfile?: any
 
                 <div className="flex flex-wrap gap-4 mt-4 text-xs text-slate-400">
                     <div className="flex items-center gap-1.5"><MapPin size={14} /> New York, USA</div>
-                    <div className="flex items-center gap-1.5 text-blue-400 hover:underline cursor-pointer"><LinkIcon size={14} /> pulsenet.com/{handle}</div>
+                    <div className="flex items-center gap-1.5 text-blue-400 hover:underline cursor-pointer"><LinkIcon size={14} /> findpals.xyz/{handle}</div>
                     <div className="flex items-center gap-1.5"><Calendar size={14} /> Born 12 May</div>
                 </div>
 
@@ -209,7 +209,7 @@ export const ProfilePage = ({ userProfile, setCurrentPage }: { userProfile?: any
                     {[
                         { id: 'posts', icon: Grid, label: 'Posts' },
                         { id: 'reels', icon: PlaySquare, label: 'Reels' },
-                        { id: 'pulse', icon: Zap, label: 'Pulse' },
+                        { id: 'live', icon: Zap, label: 'Live' },
                         { id: 'saved', icon: Bookmark, label: 'Saved' },
                         { id: 'tagged', icon: User, label: 'Tagged' }
                     ].map(tab => (
