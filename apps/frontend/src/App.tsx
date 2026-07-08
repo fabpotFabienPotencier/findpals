@@ -123,8 +123,8 @@ function App() {
             case 'feed': return <FeedPage userProfile={userProfile} setCurrentPage={setCurrentPage as any} setViewUserId={setViewUserId} />;
             case 'messages': return <MessagingPage activeChat={activeChat} setActiveChat={setActiveChat} userProfile={userProfile} />;
             case 'creator': return <CreatorHub userProfile={userProfile} setCurrentPage={(page: any) => setCurrentPage(page)} />;
-            case 'profile': return <ProfilePage userProfile={userProfile} setCurrentPage={(page: any) => setCurrentPage(page)} setActiveChat={setActiveChat} />;
-            case 'view-profile': return <ProfilePage userProfile={userProfile} viewUserId={viewUserId} setCurrentPage={(page: any) => setCurrentPage(page)} setActiveChat={setActiveChat} />;
+            case 'profile': return <ProfilePage userProfile={userProfile} setCurrentPage={(page: any) => setCurrentPage(page)} setActiveChat={setActiveChat} setViewUserId={setViewUserId} />;
+            case 'view-profile': return <ProfilePage userProfile={userProfile} viewUserId={viewUserId} setCurrentPage={(page: any) => setCurrentPage(page)} setActiveChat={setActiveChat} setViewUserId={setViewUserId} />;
             case 'wallet': return <WalletPage userProfile={userProfile} onDepositSuccess={fetchProfile} />;
             case 'reels': return <ReelsPage userProfile={userProfile} setCurrentPage={(page: any) => setCurrentPage(page)} setViewUserId={setViewUserId} />;
             case 'live': return <LiveStreamPage />;

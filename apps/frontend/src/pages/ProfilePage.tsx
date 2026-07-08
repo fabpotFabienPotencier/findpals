@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Settings, Share, Grid, PlaySquare, Heart, Bookmark, Edit, Zap, Loader2, Link as LinkIcon, Calendar, Lock, CheckCircle2, MessageSquare } from 'lucide-react';
+import { Settings, Share, Grid, PlaySquare, Heart, Bookmark, Edit, Zap, Loader2, Link as LinkIcon, Calendar, Lock, CheckCircle2, MessageSquare, User } from 'lucide-react';
 import { users, feed } from '../services/api';
 import { PostCard, type FeedPost } from './FeedPage';
 
@@ -8,12 +8,14 @@ export const ProfilePage = ({
     userProfile, 
     viewUserId, 
     setCurrentPage,
-    setActiveChat
+    setActiveChat,
+    setViewUserId
 }: { 
     userProfile?: any, 
     viewUserId?: string | null, 
     setCurrentPage?: (page: string) => void,
-    setActiveChat?: (chat: { id: string; name: string } | null) => void
+    setActiveChat?: (chat: { id: string; name: string } | null) => void,
+    setViewUserId?: (id: string | null) => void
 }) => {
     const targetUserId = viewUserId || userProfile?.id;
     const isOwnProfile = !viewUserId || viewUserId === userProfile?.id;
