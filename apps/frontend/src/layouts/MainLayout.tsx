@@ -71,13 +71,16 @@ export const MainLayout = ({
                 <nav className="flex-1 px-4 space-y-2 mt-4">
                     <SidebarItem icon={Home} label="Home" active={currentPage === 'feed'} onClick={() => setCurrentPage('feed')} />
                     <SidebarItem icon={Search} label="Search" active={currentPage === 'search'} onClick={() => setCurrentPage('feed')} />
-                    <SidebarItem icon={Tv} label="Reels" active={currentPage === 'live'} onClick={() => setCurrentPage('live')} />
+                    <SidebarItem icon={Tv} label="Reels" active={currentPage === 'reels'} onClick={() => setCurrentPage('reels')} />
                     <SidebarItem icon={MessageSquare} label="Inbox" active={currentPage === 'messages'} onClick={() => setCurrentPage('messages')} />
-                    <SidebarItem icon={Bell} label="Notifications" active={currentPage === 'notifications'} onClick={() => setCurrentPage('feed')} />
+                    <SidebarItem icon={Bell} label="Notifications" active={currentPage === 'notifications'} onClick={() => setCurrentPage('notifications')} />
                     <SidebarItem icon={User} label="Profile" active={currentPage === 'profile'} onClick={() => setCurrentPage('profile')} />
                 </nav>
                 <div className="p-4 border-t border-white/10">
-                    <button className="w-full py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-2xl transition-all shadow-[0_0_15px_rgba(0,85,255,0.4)]">
+                    <button 
+                        onClick={() => setCurrentPage('creator')}
+                        className="w-full py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-2xl transition-all shadow-[0_0_15px_rgba(0,85,255,0.4)]"
+                    >
                         Create Post
                     </button>
                 </div>
@@ -113,7 +116,7 @@ export const MainLayout = ({
                     <div className="relative -top-5">
                         <button 
                             className="w-14 h-14 bg-blue-600 rounded-full flex items-center justify-center text-white shadow-[0_0_20px_rgba(0,85,255,0.6)] border-[4px] border-black transition-transform active:scale-95"
-                            onClick={() => setCurrentPage('live')}
+                            onClick={() => setCurrentPage('creator')}
                         >
                             <Plus size={28} />
                         </button>

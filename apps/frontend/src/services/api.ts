@@ -84,6 +84,8 @@ export const users = {
 export const feed = {
     list: (page: number, limit: number) =>
         api.get('/feed', { params: { page, limit } }),
+    getReels: (page: number = 1, limit: number = 10) =>
+        api.get('/feed/reels', { params: { page, limit } }),
     getUserPosts: (userId: string, page: number = 1, limit: number = 10) =>
         api.get(`/feed/user/${userId}`, { params: { page, limit } }),
     create: (authorId: string, content: string, type: 'post' | 'reel' | 'story' = 'post', mediaUrl?: string) =>
@@ -150,4 +152,13 @@ export const upload = {
 
 export const health = {
     check: () => api.get('/health'),
+};
+
+// ── Notifications ─────────────────────────────────────────
+
+export const notifications = {
+    list: (page: number = 1, limit: number = 20) => api.get('/notifications', { params: { page, limit } }),
+    getUnreadCount: () => api.get('/notifications/unread-count'),
+    markAsRead: (id: string) => api.patch(`/notifications/${id}/read`),
+    markAllAsRead: () => api.patch('/notifications/read-all'),
 };

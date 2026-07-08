@@ -8,11 +8,13 @@ import { WalletPage } from './pages/WalletPage';
 import { LiveStreamPage } from './pages/LiveStreamPage';
 import { SettingsPage } from './pages/SettingsPage';
 import { ProfilePage } from './pages/ProfilePage';
+import { NotificationsPage } from './pages/NotificationsPage';
+import { ReelsPage } from './pages/ReelsPage';
 import { secureStorage } from './utils/secureStorage';
 import { users } from './services/api';
 
 function App() {
-    const [currentPage, setCurrentPage] = useState<'landing' | 'onboarding' | 'feed' | 'messages' | 'creator' | 'wallet' | 'live' | 'settings' | 'profile'>('onboarding');
+    const [currentPage, setCurrentPage] = useState<'landing' | 'onboarding' | 'feed' | 'messages' | 'creator' | 'wallet' | 'live' | 'settings' | 'profile' | 'notifications' | 'reels'>('onboarding');
     const [mode, setMode] = useState<'communication-only' | 'general' | ''>('');
     const [hostname, setHostname] = useState(window.location.hostname);
     const [userProfile, setUserProfile] = useState<any>(null);
@@ -113,8 +115,10 @@ function App() {
             case 'creator': return <CreatorHub userProfile={userProfile} setCurrentPage={(page: any) => setCurrentPage(page)} />;
             case 'profile': return <ProfilePage userProfile={userProfile} setCurrentPage={(page: any) => setCurrentPage(page)} />;
             case 'wallet': return <WalletPage userProfile={userProfile} onDepositSuccess={fetchProfile} />;
+            case 'reels': return <ReelsPage />;
             case 'live': return <LiveStreamPage />;
             case 'settings': return <SettingsPage userProfile={userProfile} onProfileUpdate={fetchProfile} />;
+            case 'notifications': return <NotificationsPage />;
             default: return <FeedPage userProfile={userProfile} />;
         }
     };

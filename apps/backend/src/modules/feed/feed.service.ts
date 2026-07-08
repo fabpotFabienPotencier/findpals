@@ -24,6 +24,17 @@ export class FeedService {
 
     async getFeed(page: number = 1, limit: number = 10) {
         return this.postRepository.find({
+            where: { type: 'post' },
+            order: { createdAt: 'DESC' },
+            skip: (page - 1) * limit,
+            take: limit,
+            relations: ['author'],
+        });
+    }
+
+    async getReels(page: number = 1, limit: number = 10) {
+        return this.postRepository.find({
+            where: { type: 'reel' },
             order: { createdAt: 'DESC' },
             skip: (page - 1) * limit,
             take: limit,

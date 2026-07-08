@@ -12,6 +12,7 @@ import { PaymentsModule } from './modules/payments/payments.module';
 import { UsersModule } from './modules/users/users.module';
 import { StorageModule } from './modules/storage/storage.module';
 import { CacheModule } from './modules/cache/cache.module';
+import { NotificationsModule } from './modules/notifications/notifications.module';
 import { User } from './entities/user.entity';
 import { Chat } from './entities/chat.entity';
 import { Message } from './entities/message.entity';
@@ -23,6 +24,7 @@ import { Session } from './entities/session.entity';
 import { LiveRoom, LiveAccess } from './entities/live-room.entity';
 import { Payment } from './entities/payment.entity';
 import { Follow } from './entities/follow.entity';
+import { Notification } from './entities/notification.entity';
 
 const isProduction = process.env.NODE_ENV === 'production';
 
@@ -36,7 +38,7 @@ const isProduction = process.env.NODE_ENV === 'production';
                 Transaction, Subscription,
                 UserProgression, UserBadge, Badge,
                 Session, LiveRoom, LiveAccess,
-                Payment, Follow,
+                Payment, Follow, Notification,
             ],
             // CRITICAL: synchronize must be false in production to prevent data loss
             synchronize: !isProduction,
@@ -63,6 +65,7 @@ const isProduction = process.env.NODE_ENV === 'production';
         LiveStreamModule,
         PaymentsModule,
         StorageModule,     // Cloudflare R2 file uploads
+        NotificationsModule,
     ],
     controllers: [AppController],
     providers: [AppService],
