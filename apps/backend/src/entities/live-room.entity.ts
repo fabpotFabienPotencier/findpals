@@ -11,7 +11,7 @@ export class LiveRoom {
     @Column()
     title: string;
 
-    @ManyToOne(() => User)
+    @ManyToOne(() => User, { onDelete: 'CASCADE' })
     @JoinColumn({ name: 'hostId' })
     host: User;
 
@@ -39,14 +39,14 @@ export class LiveAccess {
     @PrimaryGeneratedColumn('uuid')
     id: string;
 
-    @ManyToOne(() => LiveRoom)
+    @ManyToOne(() => LiveRoom, { onDelete: 'CASCADE' })
     @JoinColumn({ name: 'roomId' })
     room: LiveRoom;
 
     @Column()
     roomId: string;
 
-    @ManyToOne(() => User)
+    @ManyToOne(() => User, { onDelete: 'CASCADE' })
     @JoinColumn({ name: 'userId' })
     user: User;
 

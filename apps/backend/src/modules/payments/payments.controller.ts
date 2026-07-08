@@ -38,6 +38,15 @@ export class PaymentsController {
         await this.flutterwaveService.handleWebhook(body);
         return { received: true };
     }
+
+    @Get('transactions')
+    async getMyTransactions(@Req() req: Request) {
+        const authHeader = req.headers.authorization;
+        if (!authHeader) throw new Error('Missing Authorization header');
+        const [, token] = authHeader.split(' ');
+        const payload: any = this.jwtService.decode(token);
+        return this.flutterwaveService.getUserTransactions(payload.sub);
+    }
 }
 
 

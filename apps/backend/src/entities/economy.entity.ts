@@ -15,10 +15,10 @@ export class Transaction {
     @Column({ nullable: true })
     reference: string | null;
 
-    @ManyToOne(() => User)
+    @ManyToOne(() => User, { onDelete: 'CASCADE' })
     fromUser: User;
 
-    @ManyToOne(() => User)
+    @ManyToOne(() => User, { onDelete: 'CASCADE' })
     toUser: User;
 
     @CreateDateColumn()
@@ -30,10 +30,10 @@ export class Subscription {
     @PrimaryGeneratedColumn('uuid')
     id: string;
 
-    @ManyToOne(() => User)
+    @ManyToOne(() => User, { onDelete: 'CASCADE' })
     subscriber: User;
 
-    @ManyToOne(() => User)
+    @ManyToOne(() => User, { onDelete: 'CASCADE' })
     creator: User;
 
     @Column()

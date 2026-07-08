@@ -2,9 +2,10 @@ import { type ReactNode } from 'react';
 import { motion } from 'framer-motion';
 import { Home, MessageSquare, Tv, User, Bell, Settings, Zap, DollarSign } from 'lucide-react';
 
-const SidebarItem = ({ icon: Icon, label, active = false }: { icon: any, label: string, active?: boolean }) => (
+const SidebarItem = ({ icon: Icon, label, active = false, onClick }: { icon: any, label: string, active?: boolean, onClick?: () => void }) => (
     <motion.div
         whileHover={{ x: 5 }}
+        onClick={onClick}
         className={`flex items-center gap-4 px-6 py-4 cursor-pointer transition-colors ${active ? 'text-cyan-400 border-r-2 border-cyan-400 bg-cyan-400/5' : 'text-slate-400 hover:text-white hover:bg-white/5'
             }`}
     >
@@ -13,29 +14,39 @@ const SidebarItem = ({ icon: Icon, label, active = false }: { icon: any, label: 
     </motion.div>
 );
 
-export const MainLayout = ({ children }: { children: ReactNode }) => {
+export const MainLayout = ({ 
+    children, 
+    currentPage, 
+    setCurrentPage, 
+    userProfile 
+}: { 
+    children: ReactNode, 
+    currentPage: string, 
+    setCurrentPage: (page: any) => void, 
+    userProfile: any 
+}) => {
     return (
         <div className="flex h-screen bg-[#0a0b1e] text-slate-200 overflow-hidden font-sans">
             {/* Sidebar */}
             <aside className="w-64 border-r border-slate-800/50 flex flex-col bg-[#0d0e26]">
                 <div className="p-8">
-                    <h1 className="text-2xl font-black italic tracking-tighter">
+                    <h1 className="text-2xl font-black italic tracking-tighter cursor-pointer" onClick={() => setCurrentPage('feed')}>
                         findpals<span className="text-cyan-400">social</span>
                     </h1>
                 </div>
 
                 <nav className="flex-1 mt-4">
-                    <SidebarItem icon={Home} label="Feed" active />
-                    <SidebarItem icon={Tv} label="Reels" />
-                    <SidebarItem icon={MessageSquare} label="Messages" />
-                    <SidebarItem icon={Zap} label="Live Rooms" />
-                    <SidebarItem icon={DollarSign} label="Creator Hub" />
-                    <SidebarItem icon={Bell} label="Notifications" />
-                    <SidebarItem icon={User} label="Profile" />
+                    <SidebarItem icon={Home} label="Feed" active={currentPage === 'feed'} onClick={() => setCurrentPage('feed')} />
+                    <SidebarItem icon={Tv} label="Reels" active={currentPage === 'reels'} onClick={() => setCurrentPage('feed')} />
+                    <SidebarItem icon={MessageSquare} label="Messages" active={currentPage === 'messages'} onClick={() => setCurrentPage('messages')} />
+                    <SidebarItem icon={Zap} label="Live Rooms" active={currentPage === 'live'} onClick={() => setCurrentPage('live')} />
+                    <SidebarItem icon={DollarSign} label="Creator Hub" active={currentPage === 'creator'} onClick={() => setCurrentPage('creator')} />
+                    <SidebarItem icon={Bell} label="Notifications" active={currentPage === 'notifications'} onClick={() => setCurrentPage('feed')} />
+                    <SidebarItem icon={User} label="Profile" active={currentPage === 'settings'} onClick={() => setCurrentPage('settings')} />
                 </nav>
 
                 <div className="p-6 border-t border-slate-800/50">
-                    <SidebarItem icon={Settings} label="Settings" />
+                    <SidebarItem icon={Settings} label="Settings" active={currentPage === 'settings'} onClick={() => setCurrentPage('settings')} />
                 </div>
             </aside>
 
@@ -49,11 +60,15 @@ export const MainLayout = ({ children }: { children: ReactNode }) => {
                     </div>
                     <div className="flex items-center gap-4">
                         <button className="px-4 py-2 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 text-sm font-bold hover:bg-cyan-500/20 transition-all">
-                            1,240 XP
+                            {userProfile ? `${userProfile.xp.toLocaleString()} XP` : '0 XP'}
                         </button>
-                        <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-cyan-500 to-pink-500 p-[2px]">
+                        <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-cyan-500 to-pink-500 p-[2px] cursor-pointer" onClick={() => setCurrentPage('settings')}>
                             <div className="w-full h-full rounded-full bg-[#0a0b1e] flex items-center justify-center overflow-hidden">
-                                <User size={20} />
+                                {userProfile?.avatarUrl ? (
+                                    <img src={userProfile.avatarUrl} alt="avatar" className="w-full h-full object-cover" />
+                                ) : (
+                                    <User size={20} />
+                                )}
                             </div>
                         </div>
                     </div>

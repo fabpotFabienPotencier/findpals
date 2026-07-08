@@ -1,7 +1,26 @@
 import { motion } from 'framer-motion';
 import { DollarSign, TrendingUp, Users, Zap, Plus, ArrowUpRight } from 'lucide-react';
 
-export const CreatorHub = () => {
+export const CreatorHub = ({ userProfile }: { userProfile: any }) => {
+    const balance = userProfile ? Number(userProfile.walletBalance) : 0;
+    const level = userProfile?.level || 1;
+    const xp = userProfile?.xp || 0;
+    
+    // Level math
+    const currentLevelMinXp = Math.pow(level - 1, 2) * 100;
+    const nextLevelMinXp = Math.pow(level, 2) * 100;
+    const xpDifference = nextLevelMinXp - currentLevelMinXp;
+    const xpInCurrentLevel = xp - currentLevelMinXp;
+    const progressPercent = xpDifference > 0 ? Math.min(100, Math.max(0, (xpInCurrentLevel / xpDifference) * 100)) : 0;
+    const xpRemaining = nextLevelMinXp - xp;
+
+    const getLevelTitle = (lvl: number) => {
+        if (lvl < 3) return 'social ROOKIE';
+        if (lvl < 6) return 'social RUNNER';
+        if (lvl < 10) return 'social WARRIOR';
+        return 'social CHIEF';
+    };
+
     return (
         <div className="mt-8 pb-12">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -12,7 +31,7 @@ export const CreatorHub = () => {
                     </div>
                     <div>
                         <div className="text-sm font-mono text-slate-400 uppercase tracking-widest mb-2">Total Balance</div>
-                        <div className="text-5xl font-black italic">$12,450.80</div>
+                        <div className="text-5xl font-black italic">${balance.toFixed(2)}</div>
                     </div>
                     <div className="flex gap-4 mt-8">
                         <button className="px-6 py-3 bg-white text-black font-bold rounded-2xl hover:bg-cyan-400 transition-all flex items-center gap-2">
@@ -30,29 +49,29 @@ export const CreatorHub = () => {
                     <div className="text-xs font-mono text-cyan-400 uppercase tracking-widest mb-4">Current Level</div>
                     <div className="w-24 h-24 rounded-full border-4 border-cyan-500/20 flex items-center justify-center mb-4 relative">
                         <div className="absolute inset-0 rounded-full border-4 border-cyan-500 border-t-transparent animate-spin-slow" />
-                        <span className="text-4xl font-black italic text-cyan-400">12</span>
+                        <span className="text-4xl font-black italic text-cyan-400">{level}</span>
                     </div>
-                    <div className="text-sm font-bold text-slate-300">social WARRIOR</div>
+                    <div className="text-sm font-bold text-slate-300 uppercase">{getLevelTitle(level)}</div>
                     <div className="w-full bg-slate-800 h-1.5 rounded-full mt-4 overflow-hidden">
-                        <div className="bg-cyan-500 h-full w-[65%] shadow-[0_0_10px_rgba(34,211,238,0.5)]" />
+                        <div className="bg-cyan-500 h-full shadow-[0_0_10px_rgba(34,211,238,0.5)]" style={{ width: `${progressPercent}%` }} />
                     </div>
-                    <div className="text-[10px] text-slate-500 mt-2 font-mono italic">340 XP to Level 13</div>
+                    <div className="text-[10px] text-slate-500 mt-2 font-mono italic">{xpRemaining} XP to Level {level + 1}</div>
                 </div>
             </div>
 
             <h2 className="text-xl font-bold mb-6 text-white italic">Creator Analytics</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {[
-                    { label: 'Followers', value: '4.2k', icon: Users, trend: '+12%', color: 'text-blue-400' },
-                    { label: 'Weekly Revenue', value: '$840.00', icon: TrendingUp, trend: '+5.4%', color: 'text-green-400' },
-                    { label: 'Active Streaks', value: '12 Days', icon: Zap, trend: 'Record!', color: 'text-orange-400' },
+                    { label: 'Followers', value: (userProfile?.followersCount || 0).toLocaleString(), icon: Users, trend: 'Active', color: 'text-blue-400' },
+                    { label: 'Following', value: (userProfile?.followingCount || 0).toLocaleString(), icon: Users, trend: 'Active', color: 'text-green-400' },
+                    { label: 'Level Rank', value: `LVL ${level}`, icon: Zap, trend: 'Record!', color: 'text-orange-400' },
                 ].map((stat, i) => (
                     <div key={i} className="bg-white/5 border border-white/5 rounded-2xl p-6 hover:border-white/10 transition-all">
                         <div className="flex justify-between items-start mb-4">
                             <div className={`p-2 rounded-xl bg-white/5 ${stat.color}`}>
                                 <stat.icon size={20} />
                             </div>
-                            <span className={`text-[10px] font-bold ${stat.color === 'text-green-400' ? 'text-green-400' : 'text-slate-500'}`}>
+                            <span className="text-[10px] font-bold text-slate-500">
                                 {stat.trend}
                             </span>
                         </div>

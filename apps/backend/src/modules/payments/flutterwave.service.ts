@@ -162,6 +162,18 @@ export class FlutterwaveService {
         tx.toUser = user;
         await this.transactionRepository.save(tx);
     }
+
+    async getUserTransactions(userId: string) {
+        return this.transactionRepository.find({
+            where: [
+                { fromUser: { id: userId } },
+                { toUser: { id: userId } }
+            ],
+            relations: ['fromUser', 'toUser'],
+            order: { createdAt: 'DESC' },
+            take: 20
+        });
+    }
 }
 
 

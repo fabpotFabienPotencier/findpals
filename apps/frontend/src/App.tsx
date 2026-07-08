@@ -7,11 +7,23 @@ import { OnboardingPage } from './pages/OnboardingPage';
 import { WalletPage } from './pages/WalletPage';
 import { LiveStreamPage } from './pages/LiveStreamPage';
 import { SettingsPage } from './pages/SettingsPage';
+import { secureStorage } from './utils/secureStorage';
+import { users } from './services/api';
 
 function App() {
     const [currentPage, setCurrentPage] = useState<'landing' | 'onboarding' | 'feed' | 'messages' | 'creator' | 'wallet' | 'live' | 'settings'>('onboarding');
     const [mode, setMode] = useState<'communication-only' | 'general' | ''>('');
     const [hostname, setHostname] = useState(window.location.hostname);
+    const [userProfile, setUserProfile] = useState<any>(null);
+
+    const fetchProfile = async () => {
+        try {
+            const res = await users.getMyProfile();
+            setUserProfile(res.data);
+        } catch (err) {
+            console.error('Failed to load profile:', err);
+        }
+    };
 
     useEffect(() => {
         // Handle local development where hostname is localhost
@@ -32,6 +44,7 @@ function App() {
                 // Strip the token from the URL for security
                 window.history.replaceState({}, document.title, window.location.pathname);
                 setCurrentPage('feed');
+                await fetchProfile();
                 return;
             }
 
@@ -43,6 +56,7 @@ function App() {
                     window.location.href = `https://social.findpals.xyz?auth_transfer=${encodeURIComponent(token)}`;
                 } else {
                     setCurrentPage('feed');
+                    await fetchProfile();
                 }
             } else {
                 if (hostname === 'social.findpals.xyz') {
@@ -95,28 +109,23 @@ function App() {
             case 'onboarding': return <OnboardingPage onComplete={() => setCurrentPage('feed')} />;
             case 'feed': return <FeedPage />;
             case 'messages': return <MessagingPage />;
-            case 'creator': return <CreatorHub />;
-            case 'wallet': return <WalletPage />;
+            case 'creator': return <CreatorHub userProfile={userProfile} />;
+            case 'wallet': return <WalletPage userProfile={userProfile} onDepositSuccess={fetchProfile} />;
             case 'live': return <LiveStreamPage />;
-            case 'settings': return <SettingsPage />;
+            case 'settings': return <SettingsPage userProfile={userProfile} onProfileUpdate={fetchProfile} />;
             default: return <FeedPage />;
         }
     };
 
     return (
-        <MainLayout>
-            {/* Navigation toggle for demo purposes */}
-            <div className="absolute top-20 right-8 z-50 flex gap-2">
-                <button onClick={() => setCurrentPage('feed')} className="px-3 py-1 bg-white/5 border border-white/10 rounded-full text-[10px] hover:bg-white/10 transition-all uppercase font-bold text-slate-400">Feed</button>
-                <button onClick={() => setCurrentPage('messages')} className="px-3 py-1 bg-white/5 border border-white/10 rounded-full text-[10px] hover:bg-white/10 transition-all uppercase font-bold text-slate-400">Chat</button>
-                <button onClick={() => setCurrentPage('creator')} className="px-3 py-1 bg-white/5 border border-white/10 rounded-full text-[10px] hover:bg-white/10 transition-all uppercase font-bold text-slate-400">Creator</button>
-                <button onClick={() => setCurrentPage('wallet')} className="px-3 py-1 bg-white/5 border border-white/10 rounded-full text-[10px] hover:bg-white/10 transition-all uppercase font-bold text-slate-400">Wallet</button>
-                <button onClick={() => setCurrentPage('live')} className="px-3 py-1 bg-white/5 border border-white/10 rounded-full text-[10px] hover:bg-white/10 transition-all uppercase font-bold text-slate-400">Live</button>
-                <button onClick={() => setCurrentPage('settings')} className="px-3 py-1 bg-white/5 border border-white/10 rounded-full text-[10px] hover:bg-white/10 transition-all uppercase font-bold text-slate-400">Settings</button>
-            </div>
+        <MainLayout
+            currentPage={currentPage}
+            setCurrentPage={(page: any) => setCurrentPage(page)}
+            userProfile={userProfile}
+        >
             {renderPage()}
         </MainLayout>
-    )
+    );
 }
 
 export default App

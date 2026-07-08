@@ -13,14 +13,14 @@ export class Comment {
     @CreateDateColumn()
     createdAt: Date;
 
-    @ManyToOne(() => User)
+    @ManyToOne(() => User, { onDelete: 'CASCADE' })
     @JoinColumn({ name: 'authorId' })
     author: User;
 
     @Column()
     authorId: string;
 
-    @ManyToOne(() => Post)
+    @ManyToOne(() => Post, { onDelete: 'CASCADE' })
     @JoinColumn({ name: 'postId' })
     post: Post;
 

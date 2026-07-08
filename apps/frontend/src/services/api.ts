@@ -20,6 +20,19 @@ api.interceptors.request.use(async (config) => {
     return config;
 });
 
+api.interceptors.response.use(
+    (response) => response,
+    async (error) => {
+        if (error.response && error.response.status === 401) {
+            await secureStorage.removeItem('auth_token');
+            if (window.location.hostname !== 'account.findpals.xyz') {
+                window.location.href = 'https://account.findpals.xyz';
+            }
+        }
+        return Promise.reject(error);
+    }
+);
+
 // ── Auth ──────────────────────────────────────────────────
 
 export const auth = {
@@ -95,6 +108,8 @@ export const payments = {
         api.post('/payments/flutterwave/initialize', { amount, currency, redirectUrl }),
     flutterwaveVerify: (txRef: string) =>
         api.get('/payments/flutterwave/verify', { params: { tx_ref: txRef } }),
+    getTransactions: () =>
+        api.get('/payments/transactions'),
 };
 
 // ── Upload (Cloudflare R2) ────────────────────────────────

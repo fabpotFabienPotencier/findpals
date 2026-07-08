@@ -24,9 +24,16 @@ export const LiveStreamPage = () => {
         const s = io(`${SOCKET_URL}/live`, { transports: ['websocket'] });
         setSocket(s);
 
-        const pc = new RTCPeerConnection({
-            iceServers: [{ urls: ['stun:stun.l.google.com:19302'] }],
-        });
+        let iceServers: any[] = [{ urls: 'stun:stun.l.google.com:19302' }];
+        const envIceServers = import.meta.env.VITE_ICE_SERVERS;
+        if (envIceServers) {
+            try {
+                iceServers = JSON.parse(envIceServers);
+            } catch (e) {
+                console.error("Failed to parse VITE_ICE_SERVERS environment variable:", e);
+            }
+        }
+        const pc = new RTCPeerConnection({ iceServers });
         setPeerConnection(pc);
 
         pc.ontrack = (event) => {
