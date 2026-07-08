@@ -4,7 +4,7 @@ import { Heart, MessageCircle, Share2, MoreHorizontal, Zap, Loader2 } from 'luci
 import { feed } from '../services/api';
 import { secureStorage } from '../utils/secureStorage';
 
-type FeedPost = {
+export type FeedPost = {
     id: string;
     content: string | null;
     mediaUrl?: string | null;
@@ -19,7 +19,7 @@ type FeedPost = {
     };
 };
 
-const PostCard = ({ post, currentUserId }: { post: FeedPost; currentUserId?: string | null }) => {
+export const PostCard = ({ post, currentUserId }: { post: FeedPost; currentUserId?: string | null }) => {
     const authorName = post.author?.displayName || post.author?.username || 'Unknown';
     const authorHandle = post.author?.username || 'anonymous';
     const avatarUrl = post.author?.avatarUrl;

@@ -3,14 +3,15 @@
 @tailwind utilities;
 
 :root {
-  --findpals-neon: #00f2ff;
-  --findpals: #0a0b1e;
-  --findpals-accent: #ff007a;
+  --findpals-neon: #0055ff;
+  --findpals: #000000;
+  --findpals-surface: #0a0a0a;
+  --findpals-accent: #00aaff;
 }
 
 body {
   background-color: var(--findpals);
-  color: #e2e8f0;
+  color: #ffffff;
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   margin: 0;
   overflow-x: hidden;

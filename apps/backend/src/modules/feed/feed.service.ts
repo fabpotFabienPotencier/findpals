@@ -31,6 +31,16 @@ export class FeedService {
         });
     }
 
+    async getUserPosts(userId: string, page: number = 1, limit: number = 10) {
+        return this.postRepository.find({
+            where: { authorId: userId },
+            order: { createdAt: 'DESC' },
+            skip: (page - 1) * limit,
+            take: limit,
+            relations: ['author'],
+        });
+    }
+
     async addComment(postId: string, authorId: string, content: string) {
         const comment = new Comment();
         comment.post = { id: postId } as Post;

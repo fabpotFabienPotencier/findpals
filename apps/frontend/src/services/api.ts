@@ -84,6 +84,8 @@ export const users = {
 export const feed = {
     list: (page: number, limit: number) =>
         api.get('/feed', { params: { page, limit } }),
+    getUserPosts: (userId: string, page: number = 1, limit: number = 10) =>
+        api.get(`/feed/user/${userId}`, { params: { page, limit } }),
     create: (authorId: string, content: string, type: 'post' | 'reel' | 'story' = 'post', mediaUrl?: string) =>
         api.post('/feed/post', { authorId, content, type, mediaUrl }),
     comment: (postId: string, authorId: string, content: string) =>

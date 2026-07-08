@@ -15,6 +15,11 @@ export class FeedController {
         return this.feedService.getFeed(parseInt(page) || 1, parseInt(limit) || 10);
     }
 
+    @Get('user/:userId')
+    async getUserPosts(@Param('userId') userId: string, @Query('page') page: string, @Query('limit') limit: string) {
+        return this.feedService.getUserPosts(userId, parseInt(page) || 1, parseInt(limit) || 10);
+    }
+
     @Post('comment')
     async addComment(@Body() body: any) {
         return this.feedService.addComment(body.postId, body.authorId, body.content);
