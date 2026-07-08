@@ -1,37 +1,51 @@
-import { Controller, Get, Patch, Param, UseGuards, Request, Query } from '@nestjs/common';
+import { Controller, Get, Patch, Param, Req, Query } from '@nestjs/common';
 import { NotificationsService } from './notifications.service';
-import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { JwtService } from '@nestjs/jwt';
+import { Request } from 'express';
 
 @Controller('notifications')
-@UseGuards(JwtAuthGuard)
 export class NotificationsController {
-    constructor(private readonly notificationsService: NotificationsService) {}
+    constructor(
+        private readonly notificationsService: NotificationsService,
+        private readonly jwtService: JwtService,
+    ) {}
+
+    private extractUserId(req: Request): string {
+        const authHeader = req.headers.authorization;
+        if (!authHeader) throw new Error('Missing Authorization header');
+        const [, token] = authHeader.split(' ');
+        const payload: any = this.jwtService.decode(token);
+        return payload.sub;
+    }
 
     @Get()
     async getNotifications(
-        @Request() req,
+        @Req() req: Request,
         @Query('page') page?: string,
         @Query('limit') limit?: string
     ) {
-        const userId = req.user.id;
+        const userId = this.extractUserId(req);
         const pageNum = parseInt(page) || 1;
         const limitNum = parseInt(limit) || 20;
         return await this.notificationsService.getUserNotifications(userId, pageNum, limitNum);
     }
 
     @Get('unread-count')
-    async getUnreadCount(@Request() req) {
-        const count = await this.notificationsService.getUnreadCount(req.user.id);
+    async getUnreadCount(@Req() req: Request) {
+        const userId = this.extractUserId(req);
+        const count = await this.notificationsService.getUnreadCount(userId);
         return { count };
     }
 
     @Patch(':id/read')
-    async markAsRead(@Request() req, @Param('id') id: string) {
-        return await this.notificationsService.markAsRead(id, req.user.id);
+    async markAsRead(@Req() req: Request, @Param('id') id: string) {
+        const userId = this.extractUserId(req);
+        return await this.notificationsService.markAsRead(id, userId);
     }
 
     @Patch('read-all')
-    async markAllAsRead(@Request() req) {
-        return await this.notificationsService.markAllAsRead(req.user.id);
+    async markAllAsRead(@Req() req: Request) {
+        const userId = this.extractUserId(req);
+        return await this.notificationsService.markAllAsRead(userId);
     }
 }
