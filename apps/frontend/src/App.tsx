@@ -109,7 +109,7 @@ function App() {
             case 'onboarding': return <OnboardingPage onComplete={() => setCurrentPage('feed')} />;
             case 'feed': return <FeedPage userProfile={userProfile} />;
             case 'messages': return <MessagingPage />;
-            case 'creator': return <CreatorHub userProfile={userProfile} setCurrentPage={setCurrentPage} />;
+            case 'creator': return <CreatorHub userProfile={userProfile} setCurrentPage={(page: any) => setCurrentPage(page)} />;
             case 'wallet': return <WalletPage userProfile={userProfile} onDepositSuccess={fetchProfile} />;
             case 'live': return <LiveStreamPage />;
             case 'settings': return <SettingsPage userProfile={userProfile} onProfileUpdate={fetchProfile} />;
