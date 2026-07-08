@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Settings, Share, Grid, PlaySquare, Heart, Bookmark, Edit, Zap, Loader2, MapPin, Link as LinkIcon, Calendar } from 'lucide-react';
+import { Settings, Share, Grid, PlaySquare, Heart, Bookmark, Edit, Zap, Loader2, MapPin, Link as LinkIcon, Calendar, Plus, User, MoreHorizontal, Lock } from 'lucide-react';
 import { users, feed } from '../services/api';
 import { PostCard, type FeedPost } from './FeedPage';
 
@@ -261,5 +261,3 @@ export const ProfilePage = ({ userProfile, setCurrentPage }: { userProfile?: any
     );
 };
 
-// We need these imports for the above
-import { MoreHorizontal, Lock } from 'lucide-react';
