@@ -18,7 +18,19 @@ type ChatMessage = {
     isMine?: boolean;
 };
 
-const SOCKET_URL = import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:8023';
+const getSocketUrl = (apiUrl: string) => {
+    try {
+        const url = new URL(apiUrl);
+        if (url.pathname.endsWith('/api')) {
+            url.pathname = url.pathname.slice(0, -4);
+        }
+        return url.origin;
+    } catch {
+        return apiUrl;
+    }
+};
+
+const SOCKET_URL = getSocketUrl(import.meta.env.VITE_API_URL || 'http://localhost:8023');
 
 export const MessagingPage = () => {
     const [socket, setSocket] = useState<Socket | null>(null);
@@ -60,7 +72,6 @@ export const MessagingPage = () => {
                     senderId: msg.senderId,
                     content: msg.content,
                     createdAt: msg.createdAt,
-                    isMine: msg.senderId === selfId,
                 }]);
             });
 
@@ -152,16 +163,19 @@ export const MessagingPage = () => {
                             <Loader2 className="animate-spin" size={18} /> Establishing secure link...
                         </div>
                     )}
-                    {!loading && messages.map(msg => (
-                        <div key={msg.id} className={`flex flex-col ${msg.isMine ? 'items-end ml-auto' : 'items-start'} max-w-[70%]`}>
-                            <div className={`${msg.isMine ? 'bg-cyan-500 text-black rounded-2xl rounded-tr-none shadow-[0_0_15px_rgba(34,211,238,0.3)]' : 'bg-slate-800 text-slate-200 rounded-2xl rounded-tl-none'} p-4 text-sm`}>
-                                {msg.content}
+                    {!loading && messages.map(msg => {
+                        const isMine = msg.senderId === selfId;
+                        return (
+                            <div key={msg.id} className={`flex flex-col ${isMine ? 'items-end ml-auto' : 'items-start'} max-w-[70%]`}>
+                                <div className={`${isMine ? 'bg-cyan-500 text-black rounded-2xl rounded-tr-none shadow-[0_0_15px_rgba(34,211,238,0.3)]' : 'bg-slate-800 text-slate-200 rounded-2xl rounded-tl-none'} p-4 text-sm`}>
+                                    {msg.content}
+                                </div>
+                                <span className="text-[9px] text-slate-500 mt-1 font-mono uppercase tracking-[0.2em]">
+                                    {new Date(msg.createdAt).toLocaleTimeString()}
+                                </span>
                             </div>
-                            <span className="text-[9px] text-slate-500 mt-1 font-mono uppercase tracking-[0.2em]">
-                                {new Date(msg.createdAt).toLocaleTimeString()}
-                            </span>
-                        </div>
-                    ))}
+                        );
+                    })}
                     {typingUser && (
                         <div className="text-[10px] text-slate-500 font-mono uppercase tracking-[0.2em]">
                             {typingUser} is typing...

@@ -107,13 +107,13 @@ function App() {
     const renderPage = () => {
         switch (currentPage) {
             case 'onboarding': return <OnboardingPage onComplete={() => setCurrentPage('feed')} />;
-            case 'feed': return <FeedPage />;
+            case 'feed': return <FeedPage userProfile={userProfile} />;
             case 'messages': return <MessagingPage />;
-            case 'creator': return <CreatorHub userProfile={userProfile} />;
+            case 'creator': return <CreatorHub userProfile={userProfile} setCurrentPage={setCurrentPage} />;
             case 'wallet': return <WalletPage userProfile={userProfile} onDepositSuccess={fetchProfile} />;
             case 'live': return <LiveStreamPage />;
             case 'settings': return <SettingsPage userProfile={userProfile} onProfileUpdate={fetchProfile} />;
-            default: return <FeedPage />;
+            default: return <FeedPage userProfile={userProfile} />;
         }
     };
 

@@ -2,7 +2,19 @@ import { useEffect, useRef, useState } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { live } from '../services/api';
 
-const SOCKET_URL = import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:8023';
+const getSocketUrl = (apiUrl: string) => {
+    try {
+        const url = new URL(apiUrl);
+        if (url.pathname.endsWith('/api')) {
+            url.pathname = url.pathname.slice(0, -4);
+        }
+        return url.origin;
+    } catch {
+        return apiUrl;
+    }
+};
+
+const SOCKET_URL = getSocketUrl(import.meta.env.VITE_API_URL || 'http://localhost:8023');
 
 export const LiveStreamPage = () => {
     const [socket, setSocket] = useState<Socket | null>(null);
@@ -14,6 +26,8 @@ export const LiveStreamPage = () => {
     const [isRecordingRequested, setIsRecordingRequested] = useState(false);
     const [tipAmount, setTipAmount] = useState(5);
     const [error, setError] = useState<string | null>(null);
+    const [tipError, setTipError] = useState<string | null>(null);
+    const [tipSuccess, setTipSuccess] = useState<boolean>(false);
 
     const localVideoRef = useRef<HTMLVideoElement>(null);
     const remoteVideoRef = useRef<HTMLVideoElement>(null);
@@ -105,10 +119,14 @@ export const LiveStreamPage = () => {
 
     const handleTip = async () => {
         if (!roomId) return;
+        setTipError(null);
+        setTipSuccess(false);
         try {
             await live.tipRoom(roomId, tipAmount);
-        } catch {
-            // minimal feedback
+            setTipSuccess(true);
+            setTimeout(() => setTipSuccess(false), 4000);
+        } catch (e: any) {
+            setTipError(e.response?.data?.message || 'Failed to send tip. Check your wallet balance.');
         }
     };
 
@@ -197,20 +215,24 @@ export const LiveStreamPage = () => {
                         >
                             End Stream
                         </button>
-                        <div className="flex items-center gap-2 text-xs">
-                            <input
-                                type="number"
-                                value={tipAmount}
-                                onChange={(e) => setTipAmount(Number(e.target.value))}
-                                className="w-20 bg-black/40 border border-white/10 rounded-xl px-2 py-1 text-xs"
-                                min={1}
-                            />
-                            <button
-                                onClick={handleTip}
-                                className="bg-emerald-500 hover:bg-emerald-400 px-4 py-1.5 rounded font-bold text-[10px] uppercase tracking-[0.2em]"
-                            >
-                                Tip Stream
-                            </button>
+                        <div className="flex items-center gap-4 text-xs">
+                            <div className="flex items-center gap-2">
+                                <input
+                                    type="number"
+                                    value={tipAmount}
+                                    onChange={(e) => setTipAmount(Number(e.target.value))}
+                                    className="w-20 bg-black/40 border border-white/10 rounded-xl px-2 py-1 text-xs"
+                                    min={1}
+                                />
+                                <button
+                                    onClick={handleTip}
+                                    className="bg-emerald-500 hover:bg-emerald-400 px-4 py-1.5 rounded font-bold text-[10px] uppercase tracking-[0.2em]"
+                                >
+                                    Tip Stream
+                                </button>
+                            </div>
+                            {tipSuccess && <span className="text-emerald-400 font-mono text-xs">✓ Tip sent successfully!</span>}
+                            {tipError && <span className="text-red-400 font-mono text-xs">{tipError}</span>}
                         </div>
                     </div>
                 </>

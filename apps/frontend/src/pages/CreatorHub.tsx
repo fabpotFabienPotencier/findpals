@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { DollarSign, TrendingUp, Users, Zap, Plus, ArrowUpRight } from 'lucide-react';
 
-export const CreatorHub = ({ userProfile }: { userProfile: any }) => {
+export const CreatorHub = ({ userProfile, setCurrentPage }: { userProfile: any; setCurrentPage?: (page: string) => void }) => {
     const balance = userProfile ? Number(userProfile.walletBalance) : 0;
     const level = userProfile?.level || 1;
     const xp = userProfile?.xp || 0;
@@ -34,10 +34,16 @@ export const CreatorHub = ({ userProfile }: { userProfile: any }) => {
                         <div className="text-5xl font-black italic">${balance.toFixed(2)}</div>
                     </div>
                     <div className="flex gap-4 mt-8">
-                        <button className="px-6 py-3 bg-white text-black font-bold rounded-2xl hover:bg-cyan-400 transition-all flex items-center gap-2">
+                        <button 
+                            onClick={() => setCurrentPage?.('wallet')}
+                            className="px-6 py-3 bg-white text-black font-bold rounded-2xl hover:bg-cyan-400 transition-all flex items-center gap-2"
+                        >
                             Withdraw <ArrowUpRight size={18} />
                         </button>
-                        <button className="px-6 py-3 bg-white/10 border border-white/5 text-white font-bold rounded-2xl hover:bg-white/20 transition-all">
+                        <button 
+                            onClick={() => setCurrentPage?.('wallet')}
+                            className="px-6 py-3 bg-white/10 border border-white/5 text-white font-bold rounded-2xl hover:bg-white/20 transition-all"
+                        >
                             Transactions
                         </button>
                     </div>

@@ -1,4 +1,4 @@
-import { Controller, Post, Get, Body, Query } from '@nestjs/common';
+import { Controller, Post, Get, Body, Query, Param } from '@nestjs/common';
 import { FeedService } from './feed.service';
 
 @Controller('feed')
@@ -18,5 +18,10 @@ export class FeedController {
     @Post('comment')
     async addComment(@Body() body: any) {
         return this.feedService.addComment(body.postId, body.authorId, body.content);
+    }
+
+    @Get('post/:postId/comments')
+    async getComments(@Param('postId') postId: string) {
+        return this.feedService.getComments(postId);
     }
 }

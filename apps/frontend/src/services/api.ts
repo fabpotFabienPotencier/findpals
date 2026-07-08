@@ -88,6 +88,8 @@ export const feed = {
         api.post('/feed/post', { authorId, content, type, mediaUrl }),
     comment: (postId: string, authorId: string, content: string) =>
         api.post('/feed/comment', { postId, authorId, content }),
+    getComments: (postId: string) =>
+        api.get(`/feed/post/${postId}/comments`),
 };
 
 // ── Live ──────────────────────────────────────────────────

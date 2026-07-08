@@ -38,4 +38,12 @@ export class FeedService {
         comment.content = content;
         return this.commentRepository.save(comment);
     }
+
+    async getComments(postId: string) {
+        return this.commentRepository.find({
+            where: { postId },
+            relations: ['author'],
+            order: { createdAt: 'ASC' }
+        });
+    }
 }
