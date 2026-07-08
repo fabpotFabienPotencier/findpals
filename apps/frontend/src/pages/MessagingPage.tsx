@@ -114,7 +114,7 @@ export const MessagingPage = () => {
                     <input
                         type="text"
                         placeholder="Search messages..."
-                        className="w-full bg-slate-900 border-none rounded-xl text-sm px-4 py-2 focus:ring-1 ring-cyan-500/50"
+                        className="w-full bg-slate-900 border-none rounded-xl text-sm px-4 py-2 focus:ring-1 ring-blue-500/50"
                     />
                 </div>
                 <div className="flex-1 overflow-y-auto custom-scrollbar">
@@ -122,7 +122,7 @@ export const MessagingPage = () => {
                         <div
                             key={chat.id}
                             onClick={() => setCurrentChatId(chat.id)}
-                            className={`p-4 flex gap-3 cursor-pointer hover:bg-white/5 transition-all ${chat.id === currentChatId ? 'bg-cyan-500/5 border-l-2 border-cyan-400' : ''}`}
+                            className={`p-4 flex gap-3 cursor-pointer hover:bg-white/5 transition-all ${chat.id === currentChatId ? 'bg-blue-500/5 border-l-2 border-blue-400' : ''}`}
                         >
                             <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600" />
                             <div className="flex-1 overflow-hidden">
@@ -150,8 +150,8 @@ export const MessagingPage = () => {
                         </div>
                     </div>
                     <div className="flex items-center gap-4 text-slate-400">
-                        <button className="hover:text-cyan-400 transition-colors"><Phone size={20} /></button>
-                        <button className="hover:text-cyan-400 transition-colors"><Video size={20} /></button>
+                        <button className="hover:text-blue-400 transition-colors"><Phone size={20} /></button>
+                        <button className="hover:text-blue-400 transition-colors"><Video size={20} /></button>
                         <button className="hover:text-slate-200 transition-colors"><Info size={20} /></button>
                     </div>
                 </div>
@@ -167,7 +167,7 @@ export const MessagingPage = () => {
                         const isMine = msg.senderId === selfId;
                         return (
                             <div key={msg.id} className={`flex flex-col ${isMine ? 'items-end ml-auto' : 'items-start'} max-w-[70%]`}>
-                                <div className={`${isMine ? 'bg-cyan-500 text-black rounded-2xl rounded-tr-none shadow-[0_0_15px_rgba(34,211,238,0.3)]' : 'bg-slate-800 text-slate-200 rounded-2xl rounded-tl-none'} p-4 text-sm`}>
+                                <div className={`${isMine ? 'bg-blue-500 text-black rounded-2xl rounded-tr-none shadow-[0_0_15px_rgba(0,85,255,0.3)]' : 'bg-slate-800 text-slate-200 rounded-2xl rounded-tl-none'} p-4 text-sm`}>
                                     {msg.content}
                                 </div>
                                 <span className="text-[9px] text-slate-500 mt-1 font-mono uppercase tracking-[0.2em]">
@@ -185,7 +185,7 @@ export const MessagingPage = () => {
 
                 {/* Input Area */}
                 <div className="p-4 border-t border-white/5 bg-[#0d0e26]/50">
-                    <div className="bg-slate-900/50 border border-white/5 focus-within:border-cyan-500/50 rounded-2xl flex items-center px-4 py-2 transition-all">
+                    <div className="bg-slate-900/50 border border-white/5 focus-within:border-blue-500/50 rounded-2xl flex items-center px-4 py-2 transition-all">
                         <button className="text-slate-500 hover:text-slate-300 p-2"><Paperclip size={20} /></button>
                         <input
                             type="text"
@@ -206,7 +206,7 @@ export const MessagingPage = () => {
                         <button
                             onClick={handleSend}
                             disabled={!input.trim()}
-                            className="bg-cyan-500 text-black p-2.5 rounded-xl hover:bg-cyan-400 transition-all ml-2 shadow-[0_0_10px_rgba(34,211,238,0.5)] disabled:opacity-60"
+                            className="bg-blue-500 text-black p-2.5 rounded-xl hover:bg-blue-400 transition-all ml-2 shadow-[0_0_10px_rgba(0,85,255,0.5)] disabled:opacity-60"
                         >
                             <Send size={18} />
                         </button>

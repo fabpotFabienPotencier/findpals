@@ -119,7 +119,7 @@ export const MainLayout = ({
                         </button>
                     </div>
                     
-                    <BottomNavItem icon={MessageSquare} active={currentPage === 'messages'} onClick={() => setCurrentPage('messages')} badge={3} />
+                    <BottomNavItem icon={MessageSquare} active={currentPage === 'messages'} onClick={() => setCurrentPage('messages')} />
                     <BottomNavItem icon={User} active={currentPage === 'profile'} onClick={() => setCurrentPage('profile')} />
                 </div>
             </nav>

@@ -66,24 +66,30 @@ export const ProfilePage = ({ userProfile, setCurrentPage }: { userProfile?: any
     return (
         <div className="pb-24">
             {/* Header & Cover Area */}
-            <div className="relative h-48 md:h-64 bg-slate-900 overflow-hidden border-b border-white/5">
-                <img 
-                    src="https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=2094&auto=format&fit=crop" 
-                    alt="cover" 
-                    className="w-full h-full object-cover opacity-60" 
-                />
+            <div className="relative h-48 md:h-64 overflow-hidden border-b border-white/5 bg-gradient-to-tr from-blue-900 to-black">
+                {profile.coverUrl ? (
+                    <img 
+                        src={profile.coverUrl} 
+                        alt="cover" 
+                        className="w-full h-full object-cover opacity-60" 
+                    />
+                ) : (
+                    <div className="w-full h-full opacity-30 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCI+PHBhdGggZD0iTTAgMGg0MHY0MEgweiIgZmlsbD0ibm9uZSIvPjxwb2x5Z29uIHBvaW50cz0iMCA0MCA0MCAwIDQwIDQwIiBmaWxsPSIjZmZmIiBmaWxsLW9wYWNpdHk9Ii4wNSIvPjwvc3ZnPg==')]"></div>
+                )}
                 <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black" />
                 
                 <div className="absolute top-4 right-4 flex gap-3">
                     <button className="w-10 h-10 rounded-full bg-black/50 backdrop-blur border border-white/10 flex items-center justify-center text-white hover:bg-white/10 transition-colors">
                         <Share size={18} />
                     </button>
-                    <button 
-                        onClick={() => setCurrentPage?.('settings')}
-                        className="w-10 h-10 rounded-full bg-black/50 backdrop-blur border border-white/10 flex items-center justify-center text-white hover:bg-white/10 transition-colors"
-                    >
-                        <Settings size={18} />
-                    </button>
+                    {userProfile?.id === profile.id && (
+                        <button 
+                            onClick={() => setCurrentPage?.('settings')}
+                            className="w-10 h-10 rounded-full bg-black/50 backdrop-blur border border-white/10 flex items-center justify-center text-white hover:bg-white/10 transition-colors"
+                        >
+                            <Settings size={18} />
+                        </button>
+                    )}
                 </div>
             </div>
 
@@ -100,61 +106,74 @@ export const ProfilePage = ({ userProfile, setCurrentPage }: { userProfile?: any
                                 </div>
                             )}
                         </div>
-                        <div className="absolute bottom-0 right-0 w-8 h-8 bg-blue-500 rounded-full border-[3px] border-black flex items-center justify-center text-white shadow-[0_0_10px_rgba(0,85,255,0.8)]">
-                            <Zap size={14} fill="currentColor" />
-                        </div>
+                        {profile.isCreator && (
+                            <div className="absolute bottom-0 right-0 w-8 h-8 bg-blue-500 rounded-full border-[3px] border-black flex items-center justify-center text-white shadow-[0_0_10px_rgba(0,85,255,0.8)]">
+                                <Zap size={14} fill="currentColor" />
+                            </div>
+                        )}
                     </div>
                     
-                    <button 
-                        onClick={() => setCurrentPage?.('settings')}
-                        className="px-6 py-2 rounded-full border border-white/20 text-white text-sm font-bold flex items-center gap-2 hover:bg-white/5 transition-colors bg-black/50 backdrop-blur"
-                    >
-                        <Edit size={14} /> Edit
-                    </button>
+                    {userProfile?.id === profile.id ? (
+                        <button 
+                            onClick={() => setCurrentPage?.('settings')}
+                            className="px-6 py-2 rounded-full border border-white/20 text-white text-sm font-bold flex items-center gap-2 hover:bg-white/5 transition-colors bg-black/50 backdrop-blur"
+                        >
+                            <Edit size={14} /> Edit
+                        </button>
+                    ) : (
+                        <button className="px-6 py-2 rounded-full bg-blue-600 text-white text-sm font-bold flex items-center gap-2 hover:bg-blue-500 transition-colors shadow-[0_0_10px_rgba(0,85,255,0.3)]">
+                            Follow
+                        </button>
+                    )}
                 </div>
 
                 <div>
                     <h1 className="text-2xl font-bold text-white flex items-center gap-2">
                         {displayName}
-                        <div className="w-4 h-4 bg-blue-500 rounded-full flex items-center justify-center text-[10px] text-white">
-                            ✓
-                        </div>
+                        {profile.isCreator && (
+                            <div className="w-4 h-4 bg-blue-500 rounded-full flex items-center justify-center text-[10px] text-white">
+                                ✓
+                            </div>
+                        )}
                     </h1>
                     <div className="flex items-center gap-2 mt-1">
                         <span className="text-slate-400 text-sm">@{handle}</span>
-                        <span className="px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 text-[10px] font-bold uppercase tracking-wider">
-                            FindPals+
-                        </span>
+                        {profile.isCreator && (
+                            <span className="px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 text-[10px] font-bold uppercase tracking-wider">
+                                FindPals+
+                            </span>
+                        )}
                     </div>
                 </div>
 
-                <div className="mt-4 text-sm text-slate-300 leading-relaxed whitespace-pre-wrap">
-                    {bio}
-                </div>
+                {profile.bio && (
+                    <div className="mt-4 text-sm text-slate-300 leading-relaxed whitespace-pre-wrap">
+                        {profile.bio}
+                    </div>
+                )}
 
                 <div className="flex flex-wrap gap-4 mt-4 text-xs text-slate-400">
-                    <div className="flex items-center gap-1.5"><MapPin size={14} /> New York, USA</div>
-                    <div className="flex items-center gap-1.5 text-blue-400 hover:underline cursor-pointer"><LinkIcon size={14} /> findpals.xyz/{handle}</div>
-                    <div className="flex items-center gap-1.5"><Calendar size={14} /> Born 12 May</div>
+                    <div className="flex items-center gap-1.5 text-blue-400 hover:underline cursor-pointer">
+                        <LinkIcon size={14} /> findpals.xyz/{handle}
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                        <Calendar size={14} /> Joined {new Date(profile.createdAt || Date.now()).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
+                    </div>
                 </div>
 
                 {/* Stats */}
-                <div className="grid grid-cols-4 gap-4 mt-8 py-6 border-y border-white/10 text-center">
+                <div className="grid grid-cols-3 gap-4 mt-8 py-6 border-y border-white/10 text-center">
                     <div>
-                        <div className="text-lg md:text-xl font-bold text-white">{posts.length}</div>
+                        <div className="text-lg md:text-xl font-bold text-white">{profile.postsCount || posts.length || 0}</div>
                         <div className="text-[10px] uppercase tracking-wider text-slate-500 mt-1">Posts</div>
                     </div>
                     <div>
-                        <div className="text-lg md:text-xl font-bold text-white">{(profile.followersCount || 2800).toLocaleString()}</div>
+                        <div className="text-lg md:text-xl font-bold text-white">{(profile.followersCount || 0).toLocaleString()}</div>
                         <div className="text-[10px] uppercase tracking-wider text-slate-500 mt-1">Followers</div>
                     </div>
                     <div>
-                        <div className="text-lg md:text-xl font-bold text-white">{(profile.followingCount || 342).toLocaleString()}</div>
+                        <div className="text-lg md:text-xl font-bold text-white">{(profile.followingCount || 0).toLocaleString()}</div>
                         <div className="text-[10px] uppercase tracking-wider text-slate-500 mt-1">Following</div>
-                    </div>
-                    <div>
-                        <div className="text-lg md:text-xl font-bold text-white">56.7K</div>
-                        <div className="text-[10px] uppercase tracking-wider text-slate-500 mt-1">Likes</div>
                     </div>
                 </div>
 
@@ -171,38 +190,12 @@ export const ProfilePage = ({ userProfile, setCurrentPage }: { userProfile?: any
                     </button>
                 </div>
 
-                {/* Story Highlights */}
-                <div className="flex gap-4 mt-8 overflow-x-auto custom-scrollbar pb-4 -mx-6 px-6 snap-x">
-                    <div className="flex flex-col items-center gap-2 flex-shrink-0 snap-start">
-                        <button className="w-16 h-16 rounded-full border border-dashed border-slate-600 flex items-center justify-center text-slate-400 hover:text-white hover:border-slate-400 transition-colors">
-                            <Plus size={24} />
-                        </button>
-                        <span className="text-[10px] text-slate-300">New</span>
+                {/* Story Highlights (Coming Soon) */}
+                {profile.highlights && profile.highlights.length > 0 && (
+                    <div className="flex gap-4 mt-8 overflow-x-auto custom-scrollbar pb-4 -mx-6 px-6 snap-x">
+                        {/* Dynamic highlights will go here */}
                     </div>
-                    
-                    {[
-                        { name: 'Travel', img: 'https://images.unsplash.com/photo-1506929562872-bb421503ef21?w=150&h=150&fit=crop' },
-                        { name: 'Photography', img: 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=150&h=150&fit=crop' },
-                        { name: 'Gym', img: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=150&h=150&fit=crop' },
-                        { name: 'Music', img: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=150&h=150&fit=crop' },
-                    ].map((h, i) => (
-                        <div key={i} className="flex flex-col items-center gap-2 flex-shrink-0 snap-start cursor-pointer group">
-                            <div className="w-16 h-16 rounded-full p-[2px] bg-gradient-to-tr from-blue-600 to-purple-600 group-hover:shadow-[0_0_10px_rgba(0,85,255,0.5)] transition-all">
-                                <div className="w-full h-full rounded-full border-2 border-black overflow-hidden">
-                                    <img src={h.img} alt={h.name} className="w-full h-full object-cover" />
-                                </div>
-                            </div>
-                            <span className="text-[10px] text-slate-300 group-hover:text-white">{h.name}</span>
-                        </div>
-                    ))}
-                    
-                    <div className="flex flex-col items-center gap-2 flex-shrink-0 snap-start">
-                        <button className="w-16 h-16 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 transition-colors">
-                            <MoreHorizontal size={24} />
-                        </button>
-                        <span className="text-[10px] text-slate-300">More</span>
-                    </div>
-                </div>
+                )}
 
                 {/* Content Tabs */}
                 <div className="flex border-b border-white/10 mt-4">

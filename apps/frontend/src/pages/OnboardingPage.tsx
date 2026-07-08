@@ -59,7 +59,7 @@ export const OnboardingPage = ({ onComplete }: { onComplete: (mode: string) => v
                 className="max-w-md w-full"
             >
                 <div className="text-center mb-8">
-                    <h1 className="text-4xl font-black italic mb-2">findpals <span className="text-cyan-400">social</span></h1>
+                    <h1 className="text-4xl font-black italic mb-2">findpals <span className="text-blue-400">social</span></h1>
                     <p className="text-slate-500 font-mono text-xs tracking-widest uppercase">
                         {step === 'auth' ? 'Identity Verification' : 'Operational Protocol'}
                     </p>
@@ -70,7 +70,7 @@ export const OnboardingPage = ({ onComplete }: { onComplete: (mode: string) => v
                         <div className="flex gap-4 mb-8 bg-black/20 p-1 rounded-xl">
                             <button
                                 onClick={() => setAuthType('login')}
-                                className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all ${authType === 'login' ? 'bg-cyan-500/20 text-cyan-400' : 'text-slate-500 hover:text-white'}`}
+                                className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all ${authType === 'login' ? 'bg-blue-500/20 text-blue-400' : 'text-slate-500 hover:text-white'}`}
                             >
                                 LOGIN
                             </button>
@@ -91,7 +91,7 @@ export const OnboardingPage = ({ onComplete }: { onComplete: (mode: string) => v
                                         type="text"
                                         value={username}
                                         onChange={(e) => setUsername(e.target.value)}
-                                        className="w-full bg-black/40 border border-white/10 rounded-xl py-3 pl-12 pr-4 text-white focus:outline-none focus:border-cyan-500/50 transition-colors"
+                                        className="w-full bg-black/40 border border-white/10 rounded-xl py-3 pl-12 pr-4 text-white focus:outline-none focus:border-blue-500/50 transition-colors"
                                         placeholder="Enter pseudonym..."
                                     />
                                 </div>
@@ -105,7 +105,7 @@ export const OnboardingPage = ({ onComplete }: { onComplete: (mode: string) => v
                                             type="email"
                                             value={email}
                                             onChange={(e) => setEmail(e.target.value)}
-                                            className="w-full bg-black/40 border border-white/10 rounded-xl py-3 pl-12 pr-4 text-white focus:outline-none focus:border-cyan-500/50 transition-colors"
+                                            className="w-full bg-black/40 border border-white/10 rounded-xl py-3 pl-12 pr-4 text-white focus:outline-none focus:border-blue-500/50 transition-colors"
                                             placeholder="Enter valid email address..."
                                         />
                                     </div>
@@ -118,7 +118,7 @@ export const OnboardingPage = ({ onComplete }: { onComplete: (mode: string) => v
                                         type="text"
                                         value={twoFactorCode}
                                         onChange={(e) => setTwoFactorCode(e.target.value)}
-                                        className="w-full bg-black/40 border border-white/10 rounded-xl py-3 px-4 text-white focus:outline-none focus:border-cyan-500/50 transition-colors tracking-[0.3em] text-sm"
+                                        className="w-full bg-black/40 border border-white/10 rounded-xl py-3 px-4 text-white focus:outline-none focus:border-blue-500/50 transition-colors tracking-[0.3em] text-sm"
                                         placeholder="------"
                                     />
                                 </div>
@@ -131,7 +131,7 @@ export const OnboardingPage = ({ onComplete }: { onComplete: (mode: string) => v
                                         type="password"
                                         value={password}
                                         onChange={(e) => setPassword(e.target.value)}
-                                        className="w-full bg-black/40 border border-white/10 rounded-xl py-3 pl-12 pr-4 text-white focus:outline-none focus:border-cyan-500/50 transition-colors"
+                                        className="w-full bg-black/40 border border-white/10 rounded-xl py-3 pl-12 pr-4 text-white focus:outline-none focus:border-blue-500/50 transition-colors"
                                         placeholder="••••••••••••"
                                     />
                                 </div>
@@ -143,7 +143,7 @@ export const OnboardingPage = ({ onComplete }: { onComplete: (mode: string) => v
                         <button
                             onClick={handleAuth}
                             disabled={loading || !username || !password}
-                            className="w-full mt-8 bg-white text-black font-bold py-4 rounded-xl hover:bg-cyan-400 hover:scale-[1.02] transition-all disabled:opacity-50 disabled:hover:scale-100 flex items-center justify-center gap-2"
+                            className="w-full mt-8 bg-white text-black font-bold py-4 rounded-xl hover:bg-blue-400 hover:scale-[1.02] transition-all disabled:opacity-50 disabled:hover:scale-100 flex items-center justify-center gap-2"
                         >
                             {loading ? <Loader className="animate-spin" size={20} /> : (
                                 <>
@@ -160,10 +160,10 @@ export const OnboardingPage = ({ onComplete }: { onComplete: (mode: string) => v
 
                         <button
                             onClick={() => handleRegister('communication-only')}
-                            className="bg-white/5 border border-white/10 p-6 rounded-2xl hover:bg-cyan-500/10 hover:border-cyan-500/50 transition-all text-left group"
+                            className="bg-white/5 border border-white/10 p-6 rounded-2xl hover:bg-blue-500/10 hover:border-blue-500/50 transition-all text-left group"
                         >
                             <div className="flex items-center gap-4 mb-2">
-                                <div className="p-3 bg-cyan-500/20 rounded-lg text-cyan-400 group-hover:bg-cyan-500 group-hover:text-black transition-colors">
+                                <div className="p-3 bg-blue-500/20 rounded-lg text-blue-400 group-hover:bg-blue-500 group-hover:text-black transition-colors">
                                     <MessageCircle size={24} />
                                 </div>
                                 <div className="font-bold text-lg text-white">Ghost Mode</div>

@@ -25,8 +25,8 @@ export const CreatorHub = ({ userProfile, setCurrentPage }: { userProfile: any; 
         <div className="mt-8 pb-12">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                 {/* Balance Card */}
-                <div className="col-span-1 md:col-span-2 bg-gradient-to-br from-cyan-500/20 to-pink-500/20 border border-white/10 rounded-3xl p-8 backdrop-blur-xl flex flex-col justify-between min-h-[240px] relative overflow-hidden group">
-                    <div className="absolute top-0 right-0 p-8 text-white/5 group-hover:text-cyan-400/10 transition-colors">
+                <div className="col-span-1 md:col-span-2 bg-gradient-to-br from-blue-500/20 to-pink-500/20 border border-white/10 rounded-3xl p-8 backdrop-blur-xl flex flex-col justify-between min-h-[240px] relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 p-8 text-white/5 group-hover:text-blue-400/10 transition-colors">
                         <DollarSign size={120} />
                     </div>
                     <div>
@@ -36,7 +36,7 @@ export const CreatorHub = ({ userProfile, setCurrentPage }: { userProfile: any; 
                     <div className="flex gap-4 mt-8">
                         <button 
                             onClick={() => setCurrentPage?.('wallet')}
-                            className="px-6 py-3 bg-white text-black font-bold rounded-2xl hover:bg-cyan-400 transition-all flex items-center gap-2"
+                            className="px-6 py-3 bg-white text-black font-bold rounded-2xl hover:bg-blue-400 transition-all flex items-center gap-2"
                         >
                             Withdraw <ArrowUpRight size={18} />
                         </button>
@@ -50,16 +50,16 @@ export const CreatorHub = ({ userProfile, setCurrentPage }: { userProfile: any; 
                 </div>
 
                 {/* Level Card */}
-                <div className="bg-[#0d0e26] border border-cyan-500/30 rounded-3xl p-8 flex flex-col justify-center items-center text-center relative overflow-hidden">
-                    <div className="absolute top-0 left-0 w-full h-1 bg-cyan-500 shadow-[0_0_15px_rgba(34,211,238,0.8)]" />
-                    <div className="text-xs font-mono text-cyan-400 uppercase tracking-widest mb-4">Current Level</div>
-                    <div className="w-24 h-24 rounded-full border-4 border-cyan-500/20 flex items-center justify-center mb-4 relative">
-                        <div className="absolute inset-0 rounded-full border-4 border-cyan-500 border-t-transparent animate-spin-slow" />
-                        <span className="text-4xl font-black italic text-cyan-400">{level}</span>
+                <div className="bg-[#0d0e26] border border-blue-500/30 rounded-3xl p-8 flex flex-col justify-center items-center text-center relative overflow-hidden">
+                    <div className="absolute top-0 left-0 w-full h-1 bg-blue-500 shadow-[0_0_15px_rgba(0,85,255,0.8)]" />
+                    <div className="text-xs font-mono text-blue-400 uppercase tracking-widest mb-4">Current Level</div>
+                    <div className="w-24 h-24 rounded-full border-4 border-blue-500/20 flex items-center justify-center mb-4 relative">
+                        <div className="absolute inset-0 rounded-full border-4 border-blue-500 border-t-transparent animate-spin-slow" />
+                        <span className="text-4xl font-black italic text-blue-400">{level}</span>
                     </div>
                     <div className="text-sm font-bold text-slate-300 uppercase">{getLevelTitle(level)}</div>
                     <div className="w-full bg-slate-800 h-1.5 rounded-full mt-4 overflow-hidden">
-                        <div className="bg-cyan-500 h-full shadow-[0_0_10px_rgba(34,211,238,0.5)]" style={{ width: `${progressPercent}%` }} />
+                        <div className="bg-blue-500 h-full shadow-[0_0_10px_rgba(0,85,255,0.5)]" style={{ width: `${progressPercent}%` }} />
                     </div>
                     <div className="text-[10px] text-slate-500 mt-2 font-mono italic">{xpRemaining} XP to Level {level + 1}</div>
                 </div>
@@ -91,7 +91,7 @@ export const CreatorHub = ({ userProfile, setCurrentPage }: { userProfile: any; 
             <div className="mt-12 bg-[#0d0e26] border border-white/5 rounded-3xl p-8">
                 <div className="flex justify-between items-center mb-8">
                     <h3 className="text-lg font-bold italic">Subscription Plans</h3>
-                    <button className="flex items-center gap-2 text-cyan-400 text-sm hover:text-cyan-300 transition-colors">
+                    <button className="flex items-center gap-2 text-blue-400 text-sm hover:text-blue-300 transition-colors">
                         <Plus size={18} /> New Plan
                     </button>
                 </div>
@@ -106,7 +106,7 @@ export const CreatorHub = ({ userProfile, setCurrentPage }: { userProfile: any; 
                                 <div className="text-xs text-slate-500 font-mono italic">{plan.benefits}</div>
                             </div>
                             <div className="text-right">
-                                <div className="font-bold text-cyan-400">{plan.price}</div>
+                                <div className="font-bold text-blue-400">{plan.price}</div>
                                 <div className="text-[10px] text-slate-500 uppercase tracking-widest">Active</div>
                             </div>
                         </div>

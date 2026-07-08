@@ -56,10 +56,10 @@ export const WalletPage = ({
 
     return (
         <div className="min-h-screen bg-black text-white p-8">
-            <h1 className="text-4xl font-bold text-cyan-400 mb-8">findpals Wallet</h1>
+            <h1 className="text-4xl font-bold text-blue-500 mb-8">FindPals Wallet</h1>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div className="bg-gray-900 border border-cyan-500/20 p-6 rounded-lg">
+                <div className="bg-gray-900 border border-blue-500/20 p-6 rounded-lg">
                     <h2 className="text-gray-400 mb-2">Total Balance</h2>
                     <div className="text-5xl font-mono mb-4">${balance.toFixed(2)}</div>
                     {error && <div className="text-xs text-red-400 mb-3">{error}</div>}
@@ -69,13 +69,13 @@ export const WalletPage = ({
                                 type="number"
                                 value={depositAmount}
                                 onChange={(e) => setDepositAmount(Number(e.target.value))}
-                                className="w-24 bg-black/40 border border-white/10 rounded px-2 py-1 text-sm text-white"
+                                className="w-24 bg-black/40 border border-white/10 rounded px-2 py-1 text-sm text-white focus:outline-none focus:border-blue-500"
                                 min={1}
                             />
                             <button
                                 disabled={loading}
                                 onClick={handleDeposit}
-                                className="bg-cyan-500 text-black px-6 py-2 rounded font-bold hover:bg-cyan-400 transition disabled:opacity-60"
+                                className="bg-blue-600 text-white px-6 py-2 rounded font-bold hover:bg-blue-500 transition shadow-[0_0_10px_rgba(0,85,255,0.4)] disabled:opacity-60"
                             >
                                 {loading ? '...' : 'Deposit'}
                             </button>

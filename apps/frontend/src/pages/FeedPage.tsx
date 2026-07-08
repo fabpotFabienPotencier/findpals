@@ -72,14 +72,14 @@ export const PostCard = ({ post, currentUserId }: { post: FeedPost; currentUserI
                     {avatarUrl ? (
                         <img src={avatarUrl} alt="avatar" className="w-12 h-12 rounded-full object-cover border border-white/10" />
                     ) : (
-                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 to-cyan-500 flex items-center justify-center text-white font-bold font-mono">
+                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center text-white font-bold font-mono">
                             {authorName[0]?.toUpperCase()}
                         </div>
                     )}
                     <div>
                         <div className="font-bold text-white flex items-center gap-2">
                             {authorName}
-                            <span className="w-4 h-4 rounded-full bg-cyan-400 flex items-center justify-center text-[10px] text-black">
+                            <span className="w-4 h-4 rounded-full bg-blue-400 flex items-center justify-center text-[10px] text-black">
                                 <Zap size={10} fill="currentColor" />
                             </span>
                         </div>
@@ -110,7 +110,7 @@ export const PostCard = ({ post, currentUserId }: { post: FeedPost; currentUserI
                 </button>
                 <button 
                     onClick={handleToggleComments}
-                    className="flex items-center gap-2 text-slate-400 hover:text-cyan-400 transition-colors"
+                    className="flex items-center gap-2 text-slate-400 hover:text-blue-400 transition-colors"
                 >
                     <MessageCircle size={20} />
                     <span className="text-sm">Comments</span>
@@ -167,12 +167,12 @@ export const PostCard = ({ post, currentUserId }: { post: FeedPost; currentUserI
                                 value={newCommentText}
                                 onChange={(e) => setNewCommentText(e.target.value)}
                                 placeholder="Write a reply..."
-                                className="flex-1 bg-[#0a0b1e]/50 border border-white/10 rounded-xl px-4 py-2 text-xs text-white focus:border-cyan-500 focus:outline-none transition-colors"
+                                className="flex-1 bg-[#0a0b1e]/50 border border-white/10 rounded-xl px-4 py-2 text-xs text-white focus:border-blue-500 focus:outline-none transition-colors"
                             />
                             <button
                                 type="submit"
                                 disabled={commenting || !newCommentText.trim()}
-                                className="px-4 py-2 bg-cyan-500 text-black text-xs font-bold rounded-xl hover:bg-cyan-400 transition-all disabled:opacity-50"
+                                className="px-4 py-2 bg-blue-500 text-black text-xs font-bold rounded-xl hover:bg-blue-400 transition-all disabled:opacity-50"
                             >
                                 {commenting ? '...' : 'Reply'}
                             </button>
@@ -282,7 +282,7 @@ export const FeedPage = ({ userProfile }: { userProfile?: any }) => {
                 )}
                 <div className="flex justify-between items-center mt-4 pt-4 border-t border-white/5">
                     <div className="flex gap-4">
-                        <button className="text-cyan-400 hover:text-cyan-300 transition-colors">
+                        <button className="text-blue-400 hover:text-blue-300 transition-colors">
                             <span className="text-xs font-mono uppercase tracking-tighter">Media</span>
                         </button>
                         <button className="text-slate-500 hover:text-white transition-colors text-xs font-mono uppercase tracking-tighter">Poll</button>
@@ -290,7 +290,7 @@ export const FeedPage = ({ userProfile }: { userProfile?: any }) => {
                     <button
                         onClick={handleCreatePost}
                         disabled={!canPost || creating}
-                        className="px-6 py-2 bg-white text-black font-bold rounded-full hover:bg-cyan-400 transition-all disabled:opacity-60 disabled:hover:bg-white flex items-center gap-2"
+                        className="px-6 py-2 bg-white text-black font-bold rounded-full hover:bg-blue-400 transition-all disabled:opacity-60 disabled:hover:bg-white flex items-center gap-2"
                     >
                         {creating && <Loader2 size={16} className="animate-spin" />}
                         <span>Post</span>

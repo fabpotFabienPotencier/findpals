@@ -108,7 +108,7 @@ export const SettingsPage = ({
                 
                 <form onSubmit={handleSaveProfile} className="space-y-6">
                     <div className="flex flex-col md:flex-row gap-6 items-center">
-                        <div className="relative w-24 h-24 rounded-full bg-slate-800 border-2 border-cyan-500/30 flex items-center justify-center overflow-hidden group">
+                        <div className="relative w-24 h-24 rounded-full bg-slate-800 border-2 border-blue-500/30 flex items-center justify-center overflow-hidden group">
                             {avatarUrl ? (
                                 <img src={avatarUrl} alt="avatar" className="w-full h-full object-cover" />
                             ) : (
@@ -120,7 +120,7 @@ export const SettingsPage = ({
                             </label>
                             {uploadingAvatar && (
                                 <div className="absolute inset-0 bg-black/80 flex items-center justify-center">
-                                    <Loader2 size={16} className="animate-spin text-cyan-400" />
+                                    <Loader2 size={16} className="animate-spin text-blue-400" />
                                 </div>
                             )}
                         </div>
@@ -133,7 +133,7 @@ export const SettingsPage = ({
                                     value={displayName}
                                     onChange={(e) => setDisplayName(e.target.value)}
                                     placeholder="your alias"
-                                    className="w-full bg-[#0a0b1e]/50 border border-white/10 rounded-xl px-4 py-2 text-sm text-white focus:border-cyan-500 focus:outline-none transition-colors"
+                                    className="w-full bg-[#0a0b1e]/50 border border-white/10 rounded-xl px-4 py-2 text-sm text-white focus:border-blue-500 focus:outline-none transition-colors"
                                 />
                             </div>
 
@@ -144,7 +144,7 @@ export const SettingsPage = ({
                                     onChange={(e) => setBio(e.target.value)}
                                     placeholder="write your cyber manifesto..."
                                     rows={3}
-                                    className="w-full bg-[#0a0b1e]/50 border border-white/10 rounded-xl px-4 py-2 text-sm text-white focus:border-cyan-500 focus:outline-none transition-colors resize-none"
+                                    className="w-full bg-[#0a0b1e]/50 border border-white/10 rounded-xl px-4 py-2 text-sm text-white focus:border-blue-500 focus:outline-none transition-colors resize-none"
                                 />
                             </div>
                         </div>
@@ -159,7 +159,7 @@ export const SettingsPage = ({
                         <button
                             type="submit"
                             disabled={savingProfile || uploadingAvatar}
-                            className="px-6 py-2 bg-cyan-500 text-black font-bold rounded-xl hover:bg-cyan-400 transition-all disabled:opacity-50 text-sm"
+                            className="px-6 py-2 bg-blue-500 text-black font-bold rounded-xl hover:bg-blue-400 transition-all disabled:opacity-50 text-sm"
                         >
                             {savingProfile ? 'Saving...' : 'Save Profile'}
                         </button>

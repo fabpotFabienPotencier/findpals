@@ -132,7 +132,7 @@ export const LiveStreamPage = () => {
 
     return (
         <div className="h-screen bg-black text-white p-4 space-y-6">
-            <h1 className="text-3xl font-bold text-cyan-400 mb-2">Live Control Room</h1>
+            <h1 className="text-3xl font-bold text-blue-400 mb-2">Live Control Room</h1>
 
             {/* Go Live Configuration */}
             {!roomId && (
@@ -177,7 +177,7 @@ export const LiveStreamPage = () => {
                     {error && <div className="text-xs text-red-400">{error}</div>}
                     <button
                         onClick={handleGoLive}
-                        className="self-start bg-cyan-500 hover:bg-cyan-400 px-6 py-2 rounded font-bold text-xs uppercase tracking-[0.2em]"
+                        className="self-start bg-blue-500 hover:bg-blue-400 px-6 py-2 rounded font-bold text-xs uppercase tracking-[0.2em]"
                     >
                         Go Live
                     </button>
@@ -191,7 +191,7 @@ export const LiveStreamPage = () => {
                         Room ID: {roomId} • Access: {accessMode.toUpperCase()}
                     </div>
                     <div className="grid grid-cols-2 gap-4">
-                        <div className="relative border border-cyan-500/60 rounded-lg overflow-hidden h-96 bg-slate-900">
+                        <div className="relative border border-blue-500/60 rounded-lg overflow-hidden h-96 bg-slate-900">
                             <video ref={localVideoRef} autoPlay muted playsInline className="w-full h-full object-cover" />
                             <div className="absolute bottom-2 left-2 bg-black/50 px-2 rounded text-xs font-mono uppercase tracking-[0.2em]">
                                 You
