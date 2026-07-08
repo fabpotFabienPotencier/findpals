@@ -25,6 +25,7 @@ import { LiveRoom, LiveAccess } from './entities/live-room.entity';
 import { Payment } from './entities/payment.entity';
 import { Follow } from './entities/follow.entity';
 import { Notification } from './entities/notification.entity';
+import { Like } from './entities/like.entity';
 
 const isProduction = process.env.NODE_ENV === 'production';
 
@@ -38,7 +39,7 @@ const isProduction = process.env.NODE_ENV === 'production';
                 Transaction, Subscription,
                 UserProgression, UserBadge, Badge,
                 Session, LiveRoom, LiveAccess,
-                Payment, Follow, Notification,
+                Payment, Follow, Notification, Like,
             ],
             // CRITICAL: synchronize must be false in production to prevent data loss
             synchronize: !isProduction,

@@ -1,7 +1,7 @@
-import { useEffect, useMemo, useState } from 'react';
-import { motion } from 'framer-motion';
-import { Heart, MessageCircle, Share2, MoreHorizontal, Zap, Loader2 } from 'lucide-react';
-import { feed } from '../services/api';
+import { useEffect, useMemo, useState, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Heart, MessageCircle, Share2, MoreHorizontal, Zap, Loader2, Trash2, Camera, CheckCircle2 } from 'lucide-react';
+import { feed, upload } from '../services/api';
 import { secureStorage } from '../utils/secureStorage';
 
 export type FeedPost = {
@@ -16,19 +16,54 @@ export type FeedPost = {
         username: string;
         displayName?: string;
         avatarUrl?: string;
+        isCreator?: boolean;
     };
 };
 
-export const PostCard = ({ post, currentUserId }: { post: FeedPost; currentUserId?: string | null }) => {
+export const PostCard = ({ 
+    post, 
+    currentUserId,
+    setCurrentPage,
+    setViewUserId,
+    onDeleteSuccess
+}: { 
+    post: FeedPost; 
+    currentUserId?: string | null;
+    setCurrentPage?: (page: string) => void;
+    setViewUserId?: (id: string) => void;
+    onDeleteSuccess?: (postId: string) => void;
+}) => {
     const authorName = post.author?.displayName || post.author?.username || 'Unknown';
     const authorHandle = post.author?.username || 'anonymous';
     const avatarUrl = post.author?.avatarUrl;
+
+    const [isLiked, setIsLiked] = useState(false);
+    const [likesCount, setLikesCount] = useState(post.likesCount || 0);
 
     const [showComments, setShowComments] = useState(false);
     const [comments, setComments] = useState<any[]>([]);
     const [loadingComments, setLoadingComments] = useState(false);
     const [newCommentText, setNewCommentText] = useState('');
     const [commenting, setCommenting] = useState(false);
+
+    // Dropdown / Actions menu
+    const [showActionsMenu, setShowActionsMenu] = useState(false);
+    const [deleting, setDeleting] = useState(false);
+    const [copied, setCopied] = useState(false);
+
+    // Load initial like status
+    useEffect(() => {
+        const checkLikeStatus = async () => {
+            if (!currentUserId) return;
+            try {
+                const res = await feed.isLiked(post.id);
+                setIsLiked(res.data.isLiked);
+            } catch (err) {
+                console.error('Failed to get like status:', err);
+            }
+        };
+        checkLikeStatus();
+    }, [post.id, currentUserId]);
 
     const handleToggleComments = async () => {
         if (!showComments) {
@@ -60,39 +95,140 @@ export const PostCard = ({ post, currentUserId }: { post: FeedPost; currentUserI
         }
     };
 
+    const handleLikeToggle = async (e: React.MouseEvent) => {
+        e.stopPropagation();
+        if (!currentUserId) return;
+
+        const originalLiked = isLiked;
+        const originalCount = likesCount;
+
+        // Optimistic update
+        setIsLiked(!isLiked);
+        setLikesCount(prev => isLiked ? prev - 1 : prev + 1);
+
+        try {
+            if (originalLiked) {
+                await feed.unlikePost(post.id);
+            } else {
+                await feed.likePost(post.id);
+            }
+        } catch (err) {
+            // Rollback on error
+            setIsLiked(originalLiked);
+            setLikesCount(originalCount);
+            console.error('Failed to toggle like:', err);
+        }
+    };
+
+    const handleDeletePost = async () => {
+        if (deleting || !currentUserId) return;
+        setDeleting(true);
+        try {
+            await feed.deletePost(post.id);
+            if (onDeleteSuccess) {
+                onDeleteSuccess(post.id);
+            }
+        } catch (err) {
+            console.error('Failed to delete post:', err);
+        } finally {
+            setDeleting(false);
+            setShowActionsMenu(false);
+        }
+    };
+
+    const handleShare = () => {
+        const url = `${window.location.origin}/post/${post.id}`;
+        if (navigator.share) {
+            navigator.share({
+                title: 'FindPals Post',
+                text: post.content || 'Check out this post on FindPals!',
+                url: url
+            }).catch(err => console.error(err));
+        } else {
+            navigator.clipboard.writeText(url).then(() => {
+                setCopied(true);
+                setTimeout(() => setCopied(false), 2000);
+            });
+        }
+    };
+
+    const handleProfileClick = () => {
+        if (!post.author?.id || !setCurrentPage || !setViewUserId) return;
+        setViewUserId(post.author.id);
+        setCurrentPage('view-profile');
+    };
+
     return (
         <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="bg-white/5 border border-white/5 rounded-3xl p-6 mb-6 hover:border-white/10 transition-all"
+            className="bg-white/5 border border-white/5 rounded-3xl p-6 mb-6 hover:border-white/10 transition-all relative"
         >
             <div className="flex justify-between items-start mb-4">
                 <div className="flex items-center gap-3">
-                    {avatarUrl ? (
-                        <img src={avatarUrl} alt="avatar" className="w-12 h-12 rounded-full object-cover border border-white/10" />
-                    ) : (
-                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center text-white font-bold font-mono">
-                            {authorName[0]?.toUpperCase()}
-                        </div>
-                    )}
+                    <div onClick={handleProfileClick} className="cursor-pointer">
+                        {avatarUrl ? (
+                            <img src={avatarUrl} alt="avatar" className="w-12 h-12 rounded-full object-cover border border-white/10" />
+                        ) : (
+                            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center text-white font-bold font-mono">
+                                {authorName[0]?.toUpperCase()}
+                            </div>
+                        )}
+                    </div>
                     <div>
-                        <div className="font-bold text-white flex items-center gap-2">
+                        <div 
+                            onClick={handleProfileClick}
+                            className="font-bold text-white flex items-center gap-2 cursor-pointer hover:underline"
+                        >
                             {authorName}
-                            <span className="w-4 h-4 rounded-full bg-blue-400 flex items-center justify-center text-[10px] text-black">
-                                <Zap size={10} fill="currentColor" />
-                            </span>
+                            {post.author?.isCreator && (
+                                <span className="w-4 h-4 rounded-full bg-blue-400 flex items-center justify-center text-[10px] text-black">
+                                    <Zap size={10} fill="currentColor" />
+                                </span>
+                            )}
                         </div>
-                        <div className="text-xs text-slate-500 font-mono italic">@{authorHandle}</div>
+                        <div 
+                            onClick={handleProfileClick}
+                            className="text-xs text-slate-500 font-mono italic cursor-pointer hover:underline"
+                        >
+                            @{authorHandle}
+                        </div>
                     </div>
                 </div>
-                <button className="text-slate-500 hover:text-white transition-colors">
-                    <MoreHorizontal size={20} />
-                </button>
+
+                <div className="relative">
+                    <button 
+                        onClick={() => setShowActionsMenu(!showActionsMenu)}
+                        className="text-slate-500 hover:text-white transition-colors"
+                    >
+                        <MoreHorizontal size={20} />
+                    </button>
+                    {showActionsMenu && (
+                        <div className="absolute right-0 mt-2 w-48 bg-[#0a0a0f] border border-white/10 rounded-2xl p-2 shadow-2xl z-20">
+                            {post.author?.id === currentUserId ? (
+                                <button
+                                    onClick={handleDeletePost}
+                                    disabled={deleting}
+                                    className="w-full flex items-center gap-2 px-3 py-2 text-xs font-mono uppercase tracking-wider text-red-400 hover:bg-white/5 rounded-xl transition-all"
+                                >
+                                    {deleting ? (
+                                        <Loader2 size={14} className="animate-spin" />
+                                    ) : (
+                                        <Trash2 size={14} />
+                                    )}
+                                    Delete Post
+                                </button>
+                            ) : (
+                                <p className="text-[10px] font-mono text-slate-500 px-3 py-2 uppercase">No actions available</p>
+                            )}
+                        </div>
+                    )}
+                </div>
             </div>
 
             {post.content && (
-                <p className="text-slate-300 leading-relaxed mb-4">
+                <p className="text-slate-300 leading-relaxed mb-4 whitespace-pre-wrap">
                     {post.content}
                 </p>
             )}
@@ -104,19 +240,26 @@ export const PostCard = ({ post, currentUserId }: { post: FeedPost; currentUserI
             )}
 
             <div className="flex items-center gap-6 pt-4 border-t border-white/5">
-                <button className="flex items-center gap-2 text-slate-400 hover:text-pink-500 transition-colors group">
-                    <Heart size={20} className="group-hover:fill-pink-500" />
-                    <span className="text-sm">{post.likesCount}</span>
+                <button 
+                    onClick={handleLikeToggle}
+                    className={`flex items-center gap-2 transition-colors group ${isLiked ? 'text-pink-500' : 'text-slate-400 hover:text-pink-500'}`}
+                >
+                    <Heart size={20} className={isLiked ? 'fill-pink-500' : 'group-hover:fill-pink-500'} />
+                    <span className="text-sm">{likesCount}</span>
                 </button>
                 <button 
                     onClick={handleToggleComments}
                     className="flex items-center gap-2 text-slate-400 hover:text-blue-400 transition-colors"
                 >
                     <MessageCircle size={20} />
-                    <span className="text-sm">Comments</span>
+                    <span className="text-sm">{comments.length || 'Comments'}</span>
                 </button>
-                <button className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors">
+                <button 
+                    onClick={handleShare}
+                    className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors relative"
+                >
                     <Share2 size={20} />
+                    <span className="text-xs">{copied ? 'Copied!' : ''}</span>
                 </button>
             </div>
 
@@ -143,7 +286,12 @@ export const PostCard = ({ post, currentUserId }: { post: FeedPost; currentUserI
                                         )}
                                         <div className="flex-1 bg-white/5 rounded-2xl px-4 py-2 border border-white/5">
                                             <div className="flex justify-between items-center mb-1">
-                                                <span className="font-bold text-white text-xs">{cAuthorName}</span>
+                                                <div className="font-bold text-white text-xs flex items-center gap-1.5">
+                                                    {cAuthorName}
+                                                    {c.author?.isCreator && (
+                                                        <span className="w-3.5 h-3.5 bg-blue-500 rounded-full flex items-center justify-center text-[8px] text-white">✓</span>
+                                                    )}
+                                                </div>
                                                 <span className="text-[10px] text-slate-500 font-mono">
                                                     {new Date(c.createdAt).toLocaleDateString()}
                                                 </span>
@@ -186,7 +334,15 @@ export const PostCard = ({ post, currentUserId }: { post: FeedPost; currentUserI
     );
 };
 
-export const FeedPage = ({ userProfile }: { userProfile?: any }) => {
+export const FeedPage = ({ 
+    userProfile, 
+    setCurrentPage, 
+    setViewUserId 
+}: { 
+    userProfile?: any;
+    setCurrentPage?: (page: string) => void;
+    setViewUserId?: (id: string) => void;
+}) => {
     const [posts, setPosts] = useState<FeedPost[]>([]);
     const [loading, setLoading] = useState(false);
     const [creating, setCreating] = useState(false);
@@ -195,9 +351,14 @@ export const FeedPage = ({ userProfile }: { userProfile?: any }) => {
     const [page, setPage] = useState(1);
     const [hasMore, setHasMore] = useState(true);
 
+    // Media attachment state
+    const fileInputRef = useRef<HTMLInputElement>(null);
+    const [attachedMediaUrl, setAttachedMediaUrl] = useState<string | null>(null);
+    const [uploadingMedia, setUploadingMedia] = useState(false);
+
     const currentUserId = userProfile?.id || null;
 
-    const canPost = useMemo(() => composerText.trim().length > 0, [composerText]);
+    const canPost = useMemo(() => composerText.trim().length > 0 || !!attachedMediaUrl, [composerText, attachedMediaUrl]);
 
     useEffect(() => {
         const load = async () => {
@@ -235,8 +396,10 @@ export const FeedPage = ({ userProfile }: { userProfile?: any }) => {
                 throw new Error('Unable to resolve user identity from token.');
             }
 
-            const res = await feed.create(authorId, composerText.trim(), 'post');
+            const res = await feed.create(authorId, composerText.trim(), 'post', attachedMediaUrl || undefined);
             setComposerText('');
+            setAttachedMediaUrl(null);
+            
             // Add freshly created post with local author details
             const newPost: FeedPost = {
                 ...res.data,
@@ -245,6 +408,7 @@ export const FeedPage = ({ userProfile }: { userProfile?: any }) => {
                     username: userProfile?.username || 'anonymous',
                     displayName: userProfile?.displayName,
                     avatarUrl: userProfile?.avatarUrl,
+                    isCreator: userProfile?.isCreator,
                 }
             };
             setPosts(prev => [newPost, ...prev]);
@@ -253,6 +417,26 @@ export const FeedPage = ({ userProfile }: { userProfile?: any }) => {
         } finally {
             setCreating(false);
         }
+    };
+
+    const handleMediaUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        setUploadingMedia(true);
+        setError(null);
+        try {
+            const url = await upload.uploadFile(file, 'posts');
+            setAttachedMediaUrl(url);
+        } catch (err: any) {
+            setError('Failed to upload media. Please try again.');
+            console.error(err);
+        } finally {
+            setUploadingMedia(false);
+        }
+    };
+
+    const handlePostDeleteSuccess = (postId: string) => {
+        setPosts(prev => prev.filter(p => p.id !== postId));
     };
 
     return (
@@ -267,13 +451,27 @@ export const FeedPage = ({ userProfile }: { userProfile?: any }) => {
                             {(userProfile?.displayName || userProfile?.username || '?')[0].toUpperCase()}
                         </div>
                     )}
-                    <textarea
-                        placeholder="What's happening in the social?"
-                        className="flex-1 bg-transparent border-none focus:ring-0 text-lg resize-none placeholder:text-slate-600 pt-2 focus:outline-none"
-                        rows={2}
-                        value={composerText}
-                        onChange={e => setComposerText(e.target.value)}
-                    />
+                    <div className="flex-1">
+                        <textarea
+                            placeholder="What's happening in the social?"
+                            className="w-full bg-transparent border-none focus:ring-0 text-lg resize-none placeholder:text-slate-600 pt-2 focus:outline-none"
+                            rows={2}
+                            value={composerText}
+                            onChange={e => setComposerText(e.target.value)}
+                        />
+                        {/* Preview attached media */}
+                        {attachedMediaUrl && (
+                            <div className="mt-3 relative rounded-2xl overflow-hidden aspect-video bg-slate-900 border border-white/10 group max-h-48">
+                                <img src={attachedMediaUrl} alt="Preview" className="w-full h-full object-cover" />
+                                <button 
+                                    onClick={() => setAttachedMediaUrl(null)}
+                                    className="absolute top-2 right-2 bg-black/75 hover:bg-black/90 p-1.5 rounded-full text-white transition-colors"
+                                >
+                                    Remove
+                                </button>
+                            </div>
+                        )}
+                    </div>
                 </div>
                 {error && (
                     <div className="mt-2 text-xs text-red-400 font-mono">
@@ -282,14 +480,29 @@ export const FeedPage = ({ userProfile }: { userProfile?: any }) => {
                 )}
                 <div className="flex justify-between items-center mt-4 pt-4 border-t border-white/5">
                     <div className="flex gap-4">
-                        <button className="text-blue-400 hover:text-blue-300 transition-colors">
-                            <span className="text-xs font-mono uppercase tracking-tighter">Media</span>
+                        <button 
+                            type="button"
+                            onClick={() => fileInputRef.current?.click()}
+                            disabled={uploadingMedia}
+                            className="text-blue-400 hover:text-blue-300 transition-colors flex items-center gap-1.5"
+                        >
+                            <Camera size={16} />
+                            <span className="text-xs font-mono uppercase tracking-tighter">
+                                {uploadingMedia ? 'Uploading...' : 'Media'}
+                            </span>
                         </button>
+                        <input 
+                            type="file"
+                            ref={fileInputRef}
+                            className="hidden"
+                            accept="image/*,video/*"
+                            onChange={handleMediaUpload}
+                        />
                         <button className="text-slate-500 hover:text-white transition-colors text-xs font-mono uppercase tracking-tighter">Poll</button>
                     </div>
                     <button
                         onClick={handleCreatePost}
-                        disabled={!canPost || creating}
+                        disabled={!canPost || creating || uploadingMedia}
                         className="px-6 py-2 bg-white text-black font-bold rounded-full hover:bg-blue-400 transition-all disabled:opacity-60 disabled:hover:bg-white flex items-center gap-2"
                     >
                         {creating && <Loader2 size={16} className="animate-spin" />}
@@ -300,7 +513,14 @@ export const FeedPage = ({ userProfile }: { userProfile?: any }) => {
 
             {/* Posts Feed */}
             {posts.map(post => (
-                <PostCard key={post.id} post={post} currentUserId={currentUserId} />
+                <PostCard 
+                    key={post.id} 
+                    post={post} 
+                    currentUserId={currentUserId} 
+                    setCurrentPage={setCurrentPage} 
+                    setViewUserId={setViewUserId}
+                    onDeleteSuccess={handlePostDeleteSuccess}
+                />
             ))}
 
             <div className="flex justify-center py-6">

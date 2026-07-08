@@ -43,6 +43,12 @@ export class MessagingGateway {
         client.join(chatId);
     }
 
+    @SubscribeMessage('getChatHistory')
+    async handleGetChatHistory(@ConnectedSocket() client: Socket, @MessageBody() chatId: string): Promise<void> {
+        const messages = await this.messagingService.getMessages(chatId);
+        client.emit('chatHistory', { chatId, messages });
+    }
+
     @SubscribeMessage('typing')
     handleTyping(@ConnectedSocket() client: Socket, @MessageBody() payload: { chatId: string, username: string }): void {
         client.to(payload.chatId).emit('userTyping', payload);

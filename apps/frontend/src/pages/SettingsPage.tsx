@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { auth, users, upload } from '../services/api';
-import { Loader2, XCircle, Camera, Check } from 'lucide-react';
+import { Loader2, XCircle, Camera, Check, LogOut, Key, Shield, AlertTriangle } from 'lucide-react';
 
 type Session = {
     id: string;
@@ -14,10 +14,12 @@ type Session = {
 
 export const SettingsPage = ({ 
     userProfile, 
-    onProfileUpdate 
+    onProfileUpdate,
+    onLogout
 }: { 
     userProfile: any, 
-    onProfileUpdate?: () => void 
+    onProfileUpdate?: () => void,
+    onLogout?: () => void
 }) => {
     const [sessions, setSessions] = useState<Session[]>([]);
     const [loadingSessions, setLoadingSessions] = useState(true);
@@ -31,6 +33,17 @@ export const SettingsPage = ({
     const [savingProfile, setSavingProfile] = useState(false);
     const [uploadingAvatar, setUploadingAvatar] = useState(false);
     const [showSuccessBadge, setShowSuccessBadge] = useState(false);
+
+    // Password change state
+    const [showPasswordSection, setShowPasswordSection] = useState(false);
+    const [forgotPasswordEmail, setForgotPasswordEmail] = useState('');
+    const [forgotPasswordLoading, setForgotPasswordLoading] = useState(false);
+    const [forgotPasswordMsg, setForgotPasswordMsg] = useState<string | null>(null);
+
+    // 2FA state
+    const [show2FASection, setShow2FASection] = useState(false);
+    const [twoFALoading, setTwoFALoading] = useState(false);
+    const [twoFAResult, setTwoFAResult] = useState<any>(null);
 
     useEffect(() => {
         if (userProfile) {
@@ -98,8 +111,34 @@ export const SettingsPage = ({
         }
     };
 
+    const handleForgotPassword = async () => {
+        if (!forgotPasswordEmail.trim()) return;
+        setForgotPasswordLoading(true);
+        setForgotPasswordMsg(null);
+        try {
+            await auth.forgotPassword(forgotPasswordEmail.trim());
+            setForgotPasswordMsg('Password reset email sent! Check your inbox.');
+        } catch (err: any) {
+            setForgotPasswordMsg(err.response?.data?.message || 'Failed to send reset email.');
+        } finally {
+            setForgotPasswordLoading(false);
+        }
+    };
+
+    const handleSetup2FA = async () => {
+        setTwoFALoading(true);
+        try {
+            const res = await auth.setupTwoFactor();
+            setTwoFAResult(res.data);
+        } catch (err: any) {
+            setTwoFAResult({ error: err.response?.data?.message || 'Failed to setup 2FA.' });
+        } finally {
+            setTwoFALoading(false);
+        }
+    };
+
     return (
-        <div className="mt-8 space-y-8">
+        <div className="mt-8 space-y-8 pb-24">
             <h2 className="text-xl font-bold tracking-widest uppercase text-slate-400">Settings Console</h2>
             
             {/* Profile Settings Section */}
@@ -167,6 +206,76 @@ export const SettingsPage = ({
                 </form>
             </div>
 
+            {/* Security Section */}
+            <div className="bg-white/5 border border-white/10 rounded-3xl p-6 space-y-6">
+                <h3 className="text-sm font-mono uppercase tracking-[0.2em] text-slate-500">Security</h3>
+
+                {/* Change Password */}
+                <div className="border border-white/5 rounded-2xl p-4">
+                    <button
+                        onClick={() => setShowPasswordSection(!showPasswordSection)}
+                        className="flex items-center gap-3 text-sm font-bold text-white w-full text-left"
+                    >
+                        <Key size={18} className="text-blue-400" /> Change Password
+                    </button>
+                    {showPasswordSection && (
+                        <div className="mt-4 space-y-3">
+                            <p className="text-xs text-slate-500">Enter your email to receive a password reset link.</p>
+                            <input
+                                type="email"
+                                value={forgotPasswordEmail}
+                                onChange={(e) => setForgotPasswordEmail(e.target.value)}
+                                placeholder="your-email@example.com"
+                                className="w-full bg-[#0a0b1e]/50 border border-white/10 rounded-xl px-4 py-2 text-sm text-white focus:border-blue-500 focus:outline-none transition-colors"
+                            />
+                            <button
+                                onClick={handleForgotPassword}
+                                disabled={forgotPasswordLoading || !forgotPasswordEmail.trim()}
+                                className="px-4 py-2 bg-blue-500/20 text-blue-400 border border-blue-500/30 rounded-xl text-xs font-bold hover:bg-blue-500/30 transition-all disabled:opacity-50"
+                            >
+                                {forgotPasswordLoading ? 'Sending...' : 'Send Reset Link'}
+                            </button>
+                            {forgotPasswordMsg && (
+                                <p className={`text-xs font-mono ${forgotPasswordMsg.includes('sent') ? 'text-green-400' : 'text-red-400'}`}>
+                                    {forgotPasswordMsg}
+                                </p>
+                            )}
+                        </div>
+                    )}
+                </div>
+
+                {/* Two-Factor Authentication */}
+                <div className="border border-white/5 rounded-2xl p-4">
+                    <button
+                        onClick={() => setShow2FASection(!show2FASection)}
+                        className="flex items-center gap-3 text-sm font-bold text-white w-full text-left"
+                    >
+                        <Shield size={18} className="text-blue-400" /> Two-Factor Authentication
+                    </button>
+                    {show2FASection && (
+                        <div className="mt-4 space-y-3">
+                            <p className="text-xs text-slate-500">Set up TOTP-based 2FA using an authenticator app.</p>
+                            <button
+                                onClick={handleSetup2FA}
+                                disabled={twoFALoading}
+                                className="px-4 py-2 bg-blue-500/20 text-blue-400 border border-blue-500/30 rounded-xl text-xs font-bold hover:bg-blue-500/30 transition-all disabled:opacity-50"
+                            >
+                                {twoFALoading ? 'Setting up...' : 'Enable 2FA'}
+                            </button>
+                            {twoFAResult && !twoFAResult.error && (
+                                <div className="bg-black/40 rounded-xl p-4 border border-white/10">
+                                    <p className="text-xs text-slate-400 mb-2">Scan this secret with your authenticator app:</p>
+                                    <p className="text-sm font-mono text-blue-400 break-all">{twoFAResult.secret || twoFAResult.otpauthUrl || JSON.stringify(twoFAResult)}</p>
+                                </div>
+                            )}
+                            {twoFAResult?.error && (
+                                <p className="text-xs font-mono text-red-400">{twoFAResult.error}</p>
+                            )}
+                        </div>
+                    )}
+                </div>
+            </div>
+
             {/* Sessions Section */}
             <div className="bg-white/5 border border-white/10 rounded-3xl p-6">
                 <h3 className="text-sm font-mono uppercase tracking-[0.2em] text-slate-500 mb-4">Active Sessions</h3>
@@ -221,8 +330,17 @@ export const SettingsPage = ({
                     </div>
                 )}
             </div>
+
+            {/* Logout */}
+            <div className="bg-red-500/5 border border-red-500/20 rounded-3xl p-6">
+                <button
+                    onClick={onLogout}
+                    className="flex items-center gap-3 text-red-400 hover:text-red-300 font-bold transition-colors w-full"
+                >
+                    <LogOut size={20} /> Sign Out of FindPals
+                </button>
+                <p className="text-xs text-slate-600 mt-2">This will clear your encrypted session from this device.</p>
+            </div>
         </div>
     );
 };
-
-

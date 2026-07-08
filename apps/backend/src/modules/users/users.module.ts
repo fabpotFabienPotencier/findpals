@@ -5,11 +5,13 @@ import { UsersController } from './users.controller';
 import { User } from '../../entities/user.entity';
 import { Follow } from '../../entities/follow.entity';
 import { AuthModule } from '../auth/auth.module';
+import { NotificationsModule } from '../notifications/notifications.module';
 
 @Module({
     imports: [
         TypeOrmModule.forFeature([User, Follow]),
         AuthModule, // Provides JwtModule for token decoding in controller
+        NotificationsModule,
     ],
     providers: [UsersService],
     controllers: [UsersController],

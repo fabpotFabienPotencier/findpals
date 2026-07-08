@@ -70,7 +70,7 @@ export const MainLayout = ({
                 </div>
                 <nav className="flex-1 px-4 space-y-2 mt-4">
                     <SidebarItem icon={Home} label="Home" active={currentPage === 'feed'} onClick={() => setCurrentPage('feed')} />
-                    <SidebarItem icon={Search} label="Search" active={currentPage === 'search'} onClick={() => setCurrentPage('feed')} />
+                    <SidebarItem icon={Search} label="Search" active={currentPage === 'search'} onClick={() => setCurrentPage('search')} />
                     <SidebarItem icon={Tv} label="Reels" active={currentPage === 'reels'} onClick={() => setCurrentPage('reels')} />
                     <SidebarItem icon={MessageSquare} label="Inbox" active={currentPage === 'messages'} onClick={() => setCurrentPage('messages')} />
                     <SidebarItem icon={Bell} label="Notifications" active={currentPage === 'notifications'} onClick={() => setCurrentPage('notifications')} />
@@ -110,7 +110,7 @@ export const MainLayout = ({
             <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-[#050505]/90 backdrop-blur-xl border-t border-white/10 pb-safe z-50">
                 <div className="flex justify-around items-center h-16 px-2">
                     <BottomNavItem icon={Home} active={currentPage === 'feed'} onClick={() => setCurrentPage('feed')} />
-                    <BottomNavItem icon={Search} active={currentPage === 'search'} onClick={() => setCurrentPage('feed')} />
+                    <BottomNavItem icon={Search} active={currentPage === 'search'} onClick={() => setCurrentPage('search')} />
                     
                     {/* Glowing Center Create Button */}
                     <div className="relative -top-5">

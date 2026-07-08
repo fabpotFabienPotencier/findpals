@@ -10,14 +10,19 @@ import { SettingsPage } from './pages/SettingsPage';
 import { ProfilePage } from './pages/ProfilePage';
 import { NotificationsPage } from './pages/NotificationsPage';
 import { ReelsPage } from './pages/ReelsPage';
+import { SearchPage } from './pages/SearchPage';
 import { secureStorage } from './utils/secureStorage';
 import { users } from './services/api';
 
+type PageType = 'landing' | 'onboarding' | 'feed' | 'messages' | 'creator' | 'wallet' | 'live' | 'settings' | 'profile' | 'notifications' | 'reels' | 'search' | 'view-profile';
+
 function App() {
-    const [currentPage, setCurrentPage] = useState<'landing' | 'onboarding' | 'feed' | 'messages' | 'creator' | 'wallet' | 'live' | 'settings' | 'profile' | 'notifications' | 'reels'>('onboarding');
+    const [currentPage, setCurrentPage] = useState<PageType>('onboarding');
     const [mode, setMode] = useState<'communication-only' | 'general' | ''>('');
     const [hostname, setHostname] = useState(window.location.hostname);
     const [userProfile, setUserProfile] = useState<any>(null);
+    const [viewUserId, setViewUserId] = useState<string | null>(null);
+    const [activeChat, setActiveChat] = useState<{ id: string; name: string } | null>(null);
 
     const fetchProfile = async () => {
         try {
@@ -26,6 +31,12 @@ function App() {
         } catch (err) {
             console.error('Failed to load profile:', err);
         }
+    };
+
+    const handleLogout = async () => {
+        await secureStorage.removeItem('auth_token');
+        setUserProfile(null);
+        setCurrentPage('onboarding');
     };
 
     useEffect(() => {
@@ -86,18 +97,17 @@ function App() {
     }
 
     // Subdomain: findpals.xyz -> Landing Page (Marketing)
-    // Assuming 'findpals.xyz' or 'www.findpals.xyz'
     if (hostname === 'findpals.xyz' || hostname === 'www.findpals.xyz') {
         return (
-            <div className="min-h-screen flex flex-col items-center justify-center bg-[#050505] text-white">
-                <h1 className="text-5xl font-bold text-[#00ff9d] mb-6 drop-shadow-[0_0_15px_rgba(0,255,157,0.5)]">FIND PALS</h1>
+            <div className="min-h-screen flex flex-col items-center justify-center bg-black text-white">
+                <h1 className="text-5xl font-bold text-blue-500 mb-6 drop-shadow-[0_0_15px_rgba(0,85,255,0.5)]">FIND PALS</h1>
                 <p className="text-xl text-slate-400 mb-8 max-w-lg text-center">
                     The next-generation encrypted social platform with a premium cyber-neon aesthetic.
                 </p>
                 <div className="flex gap-4">
                     <button 
                         onClick={() => window.location.href = 'https://account.findpals.xyz'}
-                        className="px-8 py-3 bg-[#00ff9d]/10 text-[#00ff9d] border border-[#00ff9d]/30 rounded-lg font-bold hover:bg-[#00ff9d]/20 transition-all">
+                        className="px-8 py-3 bg-blue-500/10 text-blue-400 border border-blue-500/30 rounded-lg font-bold hover:bg-blue-500/20 transition-all">
                         Login / Sign Up
                     </button>
                 </div>
@@ -110,16 +120,18 @@ function App() {
     const renderPage = () => {
         switch (currentPage) {
             case 'onboarding': return <OnboardingPage onComplete={() => setCurrentPage('feed')} />;
-            case 'feed': return <FeedPage userProfile={userProfile} />;
-            case 'messages': return <MessagingPage />;
+            case 'feed': return <FeedPage userProfile={userProfile} setCurrentPage={setCurrentPage as any} setViewUserId={setViewUserId} />;
+            case 'messages': return <MessagingPage activeChat={activeChat} setActiveChat={setActiveChat} userProfile={userProfile} />;
             case 'creator': return <CreatorHub userProfile={userProfile} setCurrentPage={(page: any) => setCurrentPage(page)} />;
-            case 'profile': return <ProfilePage userProfile={userProfile} setCurrentPage={(page: any) => setCurrentPage(page)} />;
+            case 'profile': return <ProfilePage userProfile={userProfile} setCurrentPage={(page: any) => setCurrentPage(page)} setActiveChat={setActiveChat} />;
+            case 'view-profile': return <ProfilePage userProfile={userProfile} viewUserId={viewUserId} setCurrentPage={(page: any) => setCurrentPage(page)} setActiveChat={setActiveChat} />;
             case 'wallet': return <WalletPage userProfile={userProfile} onDepositSuccess={fetchProfile} />;
-            case 'reels': return <ReelsPage />;
+            case 'reels': return <ReelsPage userProfile={userProfile} setCurrentPage={(page: any) => setCurrentPage(page)} setViewUserId={setViewUserId} />;
             case 'live': return <LiveStreamPage />;
-            case 'settings': return <SettingsPage userProfile={userProfile} onProfileUpdate={fetchProfile} />;
+            case 'settings': return <SettingsPage userProfile={userProfile} onProfileUpdate={fetchProfile} onLogout={handleLogout} />;
             case 'notifications': return <NotificationsPage />;
-            default: return <FeedPage userProfile={userProfile} />;
+            case 'search': return <SearchPage setCurrentPage={(page: any) => setCurrentPage(page)} setViewUserId={(id: string) => setViewUserId(id)} />;
+            default: return <FeedPage userProfile={userProfile} setCurrentPage={setCurrentPage as any} setViewUserId={setViewUserId} />;
         }
     };
 

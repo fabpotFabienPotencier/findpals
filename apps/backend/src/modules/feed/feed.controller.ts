@@ -1,13 +1,32 @@
-import { Controller, Post, Get, Body, Query, Param } from '@nestjs/common';
+import { Controller, Post, Get, Delete, Body, Query, Param, Req } from '@nestjs/common';
 import { FeedService } from './feed.service';
+import { JwtService } from '@nestjs/jwt';
+import { Request } from 'express';
 
 @Controller('feed')
 export class FeedController {
-    constructor(private readonly feedService: FeedService) { }
+    constructor(
+        private readonly feedService: FeedService,
+        private readonly jwtService: JwtService,
+    ) { }
+
+    private extractUserId(req: Request): string {
+        const authHeader = req.headers.authorization;
+        if (!authHeader) throw new Error('Missing Authorization header');
+        const [, token] = authHeader.split(' ');
+        const payload: any = this.jwtService.decode(token);
+        return payload.sub;
+    }
 
     @Post('post')
     async createPost(@Body() body: any) {
         return this.feedService.createPost(body.authorId, body.content, body.type, body.mediaUrl);
+    }
+
+    @Delete('post/:id')
+    async deletePost(@Req() req: Request, @Param('id') id: string) {
+        const userId = this.extractUserId(req);
+        return this.feedService.deletePost(id, userId);
     }
 
     @Get()
@@ -23,6 +42,24 @@ export class FeedController {
     @Get('user/:userId')
     async getUserPosts(@Param('userId') userId: string, @Query('page') page: string, @Query('limit') limit: string) {
         return this.feedService.getUserPosts(userId, parseInt(page) || 1, parseInt(limit) || 10);
+    }
+
+    @Post('post/:id/like')
+    async likePost(@Req() req: Request, @Param('id') id: string) {
+        const userId = this.extractUserId(req);
+        return this.feedService.likePost(id, userId);
+    }
+
+    @Delete('post/:id/like')
+    async unlikePost(@Req() req: Request, @Param('id') id: string) {
+        const userId = this.extractUserId(req);
+        return this.feedService.unlikePost(id, userId);
+    }
+
+    @Get('post/:id/is-liked')
+    async isLiked(@Req() req: Request, @Param('id') id: string) {
+        const userId = this.extractUserId(req);
+        return { isLiked: await this.feedService.isLiked(id, userId) };
     }
 
     @Post('comment')

@@ -47,6 +47,15 @@ export class PaymentsController {
         const payload: any = this.jwtService.decode(token);
         return this.flutterwaveService.getUserTransactions(payload.sub);
     }
+
+    @Post('withdraw')
+    async withdraw(@Req() req: Request, @Body() body: { amount: number }) {
+        const authHeader = req.headers.authorization;
+        if (!authHeader) throw new Error('Missing Authorization header');
+        const [, token] = authHeader.split(' ');
+        const payload: any = this.jwtService.decode(token);
+        return this.flutterwaveService.withdrawWallet(payload.sub, Number(body.amount));
+    }
 }
 
 

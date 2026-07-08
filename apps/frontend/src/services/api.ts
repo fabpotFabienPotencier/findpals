@@ -90,6 +90,14 @@ export const feed = {
         api.get(`/feed/user/${userId}`, { params: { page, limit } }),
     create: (authorId: string, content: string, type: 'post' | 'reel' | 'story' = 'post', mediaUrl?: string) =>
         api.post('/feed/post', { authorId, content, type, mediaUrl }),
+    deletePost: (postId: string) =>
+        api.delete(`/feed/post/${postId}`),
+    likePost: (postId: string) =>
+        api.post(`/feed/post/${postId}/like`),
+    unlikePost: (postId: string) =>
+        api.delete(`/feed/post/${postId}/like`),
+    isLiked: (postId: string) =>
+        api.get(`/feed/post/${postId}/is-liked`),
     comment: (postId: string, authorId: string, content: string) =>
         api.post('/feed/comment', { postId, authorId, content }),
     getComments: (postId: string) =>
@@ -116,6 +124,8 @@ export const payments = {
         api.get('/payments/flutterwave/verify', { params: { tx_ref: txRef } }),
     getTransactions: () =>
         api.get('/payments/transactions'),
+    withdraw: (amount: number) =>
+        api.post('/payments/withdraw', { amount }),
 };
 
 // ── Upload (Cloudflare R2) ────────────────────────────────

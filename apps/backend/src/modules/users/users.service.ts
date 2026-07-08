@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Like } from 'typeorm';
 import { User } from '../../entities/user.entity';
 import { Follow } from '../../entities/follow.entity';
+import { NotificationsService } from '../notifications/notifications.service';
 
 @Injectable()
 export class UsersService {
@@ -11,6 +12,7 @@ export class UsersService {
         private readonly userRepository: Repository<User>,
         @InjectRepository(Follow)
         private readonly followRepository: Repository<Follow>,
+        private readonly notificationsService: NotificationsService,
     ) { }
 
     async getProfile(userId: string) {
@@ -29,6 +31,7 @@ export class UsersService {
             followersCount: user.followersCount,
             followingCount: user.followingCount,
             postsCount: user.postsCount,
+            walletBalance: user.walletBalance,
             createdAt: user.createdAt,
         };
     }
@@ -89,6 +92,16 @@ export class UsersService {
         // Update denormalized counts
         await this.userRepository.increment({ id: followingId }, 'followersCount', 1);
         await this.userRepository.increment({ id: followerId }, 'followingCount', 1);
+
+        // Generate follow notification
+        const follower = await this.userRepository.findOne({ where: { id: followerId } });
+        const followerName = follower?.displayName || follower?.username || 'Someone';
+        await this.notificationsService.createNotification(
+            followingId,
+            'follow',
+            `${followerName} started following you`,
+            followerId,
+        );
 
         return { success: true };
     }

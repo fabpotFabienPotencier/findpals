@@ -174,6 +174,30 @@ export class FlutterwaveService {
             take: 20
         });
     }
+
+    async withdrawWallet(userId: string, amount: number) {
+        if (amount <= 0) throw new Error('Amount must be positive');
+        
+        const user = await this.userRepository.findOne({ where: { id: userId } });
+        if (!user) throw new Error('User not found');
+        
+        const currentBalance = Number(user.walletBalance);
+        if (currentBalance < amount) throw new Error('Insufficient wallet balance');
+        
+        user.walletBalance = currentBalance - amount;
+        await this.userRepository.save(user);
+        
+        const txRef = `withdrawal_${userId}_${Date.now()}`;
+        const tx = new Transaction();
+        tx.amount = amount;
+        tx.type = 'withdrawal';
+        tx.reference = txRef;
+        tx.fromUser = user;
+        tx.toUser = user;
+        await this.transactionRepository.save(tx);
+        
+        return { success: true, balance: user.walletBalance };
+    }
 }
 
 

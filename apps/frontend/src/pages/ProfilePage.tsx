@@ -1,22 +1,47 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Settings, Share, Grid, PlaySquare, Heart, Bookmark, Edit, Zap, Loader2, MapPin, Link as LinkIcon, Calendar, Plus, User, MoreHorizontal, Lock } from 'lucide-react';
+import { Settings, Share, Grid, PlaySquare, Heart, Bookmark, Edit, Zap, Loader2, Link as LinkIcon, Calendar, Lock, CheckCircle2, MessageSquare } from 'lucide-react';
 import { users, feed } from '../services/api';
 import { PostCard, type FeedPost } from './FeedPage';
 
-export const ProfilePage = ({ userProfile, setCurrentPage }: { userProfile?: any, setCurrentPage?: (page: string) => void }) => {
-    const [profile, setProfile] = useState<any>(userProfile);
-    const [loading, setLoading] = useState(!userProfile);
+export const ProfilePage = ({ 
+    userProfile, 
+    viewUserId, 
+    setCurrentPage,
+    setActiveChat
+}: { 
+    userProfile?: any, 
+    viewUserId?: string | null, 
+    setCurrentPage?: (page: string) => void,
+    setActiveChat?: (chat: { id: string; name: string } | null) => void
+}) => {
+    const targetUserId = viewUserId || userProfile?.id;
+    const isOwnProfile = !viewUserId || viewUserId === userProfile?.id;
+
+    const [profile, setProfile] = useState<any>(null);
+    const [loading, setLoading] = useState(true);
     const [posts, setPosts] = useState<FeedPost[]>([]);
     const [loadingPosts, setLoadingPosts] = useState(false);
     const [activeTab, setActiveTab] = useState<'posts' | 'reels' | 'live' | 'saved' | 'tagged'>('posts');
 
+    // Follow status
+    const [isFollowing, setIsFollowing] = useState(false);
+    const [checkingFollow, setCheckingFollow] = useState(false);
+    const [copied, setCopied] = useState(false);
+
     useEffect(() => {
         const loadProfile = async () => {
-            if (!userProfile?.id) return;
+            if (!targetUserId) return;
+            setLoading(true);
             try {
-                const res = await users.getProfile(userProfile.id);
+                const res = await users.getProfile(targetUserId);
                 setProfile(res.data);
+
+                // Fetch follow status if viewing someone else
+                if (!isOwnProfile) {
+                    const followRes = await users.isFollowing(targetUserId);
+                    setIsFollowing(followRes.data.isFollowing);
+                }
             } catch (err) {
                 console.error('Failed to load profile:', err);
             } finally {
@@ -25,10 +50,10 @@ export const ProfilePage = ({ userProfile, setCurrentPage }: { userProfile?: any
         };
 
         const loadPosts = async () => {
-            if (!userProfile?.id) return;
+            if (!targetUserId) return;
             setLoadingPosts(true);
             try {
-                const res = await feed.getUserPosts(userProfile.id, 1, 10);
+                const res = await feed.getUserPosts(targetUserId, 1, 10);
                 setPosts(res.data);
             } catch (err) {
                 console.error('Failed to load posts:', err);
@@ -37,11 +62,9 @@ export const ProfilePage = ({ userProfile, setCurrentPage }: { userProfile?: any
             }
         };
 
-        if (userProfile?.id) {
-            loadProfile();
-            loadPosts();
-        }
-    }, [userProfile?.id]);
+        loadProfile();
+        loadPosts();
+    }, [targetUserId, isOwnProfile]);
 
     if (loading) {
         return (
@@ -54,15 +77,59 @@ export const ProfilePage = ({ userProfile, setCurrentPage }: { userProfile?: any
     if (!profile) {
         return (
             <div className="text-center mt-20 text-slate-500 font-mono text-sm">
-                Profile not found or not logged in.
+                Profile not found.
             </div>
         );
     }
 
     const displayName = profile.displayName || profile.username || 'Anonymous';
     const handle = profile.username || 'anonymous';
-    const bio = profile.bio || 'Dreamer | Creator | Believer\nTurning ideas into reality.';
+    const bio = profile.bio || '';
     
+    const handleFollowToggle = async () => {
+        if (checkingFollow || !targetUserId) return;
+        setCheckingFollow(true);
+        try {
+            if (isFollowing) {
+                await users.unfollow(targetUserId);
+                setIsFollowing(false);
+                setProfile((prev: any) => prev ? { ...prev, followersCount: Math.max(0, prev.followersCount - 1) } : null);
+            } else {
+                await users.follow(targetUserId);
+                setIsFollowing(true);
+                setProfile((prev: any) => prev ? { ...prev, followersCount: prev.followersCount + 1 } : null);
+            }
+        } catch (err) {
+            console.error('Failed to toggle follow status:', err);
+        } finally {
+            setCheckingFollow(false);
+        }
+    };
+
+    const handleMessageClick = () => {
+        if (!profile || !userProfile || !setCurrentPage || !setActiveChat) return;
+        const chatPartnerName = profile.displayName || profile.username || 'User';
+        const dmChatId = `dm-${[userProfile.id, profile.id].sort().join('-')}`;
+        setActiveChat({ id: dmChatId, name: chatPartnerName });
+        setCurrentPage('messages');
+    };
+
+    const handleShare = () => {
+        const url = `${window.location.origin}/profile/${handle}`;
+        if (navigator.share) {
+            navigator.share({
+                title: `${displayName} on FindPals`,
+                text: bio || `Check out ${displayName}'s profile on FindPals!`,
+                url: url
+            }).catch(err => console.error(err));
+        } else {
+            navigator.clipboard.writeText(url).then(() => {
+                setCopied(true);
+                setTimeout(() => setCopied(false), 2500);
+            });
+        }
+    };
+
     return (
         <div className="pb-24">
             {/* Header & Cover Area */}
@@ -79,10 +146,13 @@ export const ProfilePage = ({ userProfile, setCurrentPage }: { userProfile?: any
                 <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black" />
                 
                 <div className="absolute top-4 right-4 flex gap-3">
-                    <button className="w-10 h-10 rounded-full bg-black/50 backdrop-blur border border-white/10 flex items-center justify-center text-white hover:bg-white/10 transition-colors">
+                    <button 
+                        onClick={handleShare}
+                        className="w-10 h-10 rounded-full bg-black/50 backdrop-blur border border-white/10 flex items-center justify-center text-white hover:bg-white/10 transition-colors"
+                    >
                         <Share size={18} />
                     </button>
-                    {userProfile?.id === profile.id && (
+                    {isOwnProfile && (
                         <button 
                             onClick={() => setCurrentPage?.('settings')}
                             className="w-10 h-10 rounded-full bg-black/50 backdrop-blur border border-white/10 flex items-center justify-center text-white hover:bg-white/10 transition-colors"
@@ -113,7 +183,7 @@ export const ProfilePage = ({ userProfile, setCurrentPage }: { userProfile?: any
                         )}
                     </div>
                     
-                    {userProfile?.id === profile.id ? (
+                    {isOwnProfile ? (
                         <button 
                             onClick={() => setCurrentPage?.('settings')}
                             className="px-6 py-2 rounded-full border border-white/20 text-white text-sm font-bold flex items-center gap-2 hover:bg-white/5 transition-colors bg-black/50 backdrop-blur"
@@ -121,9 +191,25 @@ export const ProfilePage = ({ userProfile, setCurrentPage }: { userProfile?: any
                             <Edit size={14} /> Edit
                         </button>
                     ) : (
-                        <button className="px-6 py-2 rounded-full bg-blue-600 text-white text-sm font-bold flex items-center gap-2 hover:bg-blue-500 transition-colors shadow-[0_0_10px_rgba(0,85,255,0.3)]">
-                            Follow
-                        </button>
+                        <div className="flex gap-2">
+                            <button 
+                                onClick={handleMessageClick}
+                                className="px-5 py-2 rounded-full bg-white/5 border border-white/10 text-white text-sm font-bold flex items-center gap-2 hover:bg-white/10 transition-colors"
+                            >
+                                <MessageSquare size={14} /> Message
+                            </button>
+                            <button 
+                                onClick={handleFollowToggle}
+                                disabled={checkingFollow}
+                                className={`px-6 py-2 rounded-full text-sm font-bold flex items-center gap-2 transition-all shadow-[0_0_10px_rgba(0,85,255,0.3)] ${
+                                    isFollowing 
+                                        ? 'bg-white/10 text-white border border-white/20 hover:bg-white/20' 
+                                        : 'bg-blue-600 text-white hover:bg-blue-500'
+                                }`}
+                            >
+                                {isFollowing ? 'Following' : 'Follow'}
+                            </button>
+                        </div>
                     )}
                 </div>
 
@@ -146,10 +232,12 @@ export const ProfilePage = ({ userProfile, setCurrentPage }: { userProfile?: any
                     </div>
                 </div>
 
-                {profile.bio && (
+                {bio ? (
                     <div className="mt-4 text-sm text-slate-300 leading-relaxed whitespace-pre-wrap">
-                        {profile.bio}
+                        {bio}
                     </div>
+                ) : (
+                    <p className="mt-4 text-sm text-slate-600 italic">No bio written yet.</p>
                 )}
 
                 <div className="flex flex-wrap gap-4 mt-4 text-xs text-slate-400">
@@ -164,7 +252,7 @@ export const ProfilePage = ({ userProfile, setCurrentPage }: { userProfile?: any
                 {/* Stats */}
                 <div className="grid grid-cols-3 gap-4 mt-8 py-6 border-y border-white/10 text-center">
                     <div>
-                        <div className="text-lg md:text-xl font-bold text-white">{profile.postsCount || posts.length || 0}</div>
+                        <div className="text-lg md:text-xl font-bold text-white">{profile.postsCount || 0}</div>
                         <div className="text-[10px] uppercase tracking-wider text-slate-500 mt-1">Posts</div>
                     </div>
                     <div>
@@ -177,28 +265,37 @@ export const ProfilePage = ({ userProfile, setCurrentPage }: { userProfile?: any
                     </div>
                 </div>
 
-                {/* Action Buttons */}
-                <div className="grid grid-cols-2 gap-4 mt-6">
-                    <button 
-                        onClick={() => setCurrentPage?.('settings')}
-                        className="py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-2xl shadow-[0_0_15px_rgba(0,85,255,0.3)] transition-all"
+                {/* Share Success Toast Link */}
+                {copied && (
+                    <motion.div 
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="mt-4 p-3 bg-blue-500/10 border border-blue-500/30 text-blue-400 rounded-xl text-xs font-mono flex items-center gap-2 justify-center"
                     >
-                        Edit Profile
-                    </button>
-                    <button className="py-3 bg-white/5 border border-white/10 hover:bg-white/10 text-white font-bold rounded-2xl transition-all flex items-center justify-center gap-2">
-                        <Share size={16} /> Share Profile
-                    </button>
-                </div>
+                        <CheckCircle2 size={14} /> Link copied to secure clipboard!
+                    </motion.div>
+                )}
 
-                {/* Story Highlights (Coming Soon) */}
-                {profile.highlights && profile.highlights.length > 0 && (
-                    <div className="flex gap-4 mt-8 overflow-x-auto custom-scrollbar pb-4 -mx-6 px-6 snap-x">
-                        {/* Dynamic highlights will go here */}
+                {/* Action Buttons (For own profile settings shortcut) */}
+                {isOwnProfile && (
+                    <div className="grid grid-cols-2 gap-4 mt-6">
+                        <button 
+                            onClick={() => setCurrentPage?.('settings')}
+                            className="py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-2xl shadow-[0_0_15px_rgba(0,85,255,0.3)] transition-all text-sm"
+                        >
+                            Edit Profile
+                        </button>
+                        <button 
+                            onClick={handleShare}
+                            className="py-3 bg-white/5 border border-white/10 hover:bg-white/10 text-white font-bold rounded-2xl transition-all flex items-center justify-center gap-2 text-sm"
+                        >
+                            <Share size={16} /> Share Profile
+                        </button>
                     </div>
                 )}
 
                 {/* Content Tabs */}
-                <div className="flex border-b border-white/10 mt-4">
+                <div className="flex border-b border-white/10 mt-6">
                     {[
                         { id: 'posts', icon: Grid, label: 'Posts' },
                         { id: 'reels', icon: PlaySquare, label: 'Reels' },
@@ -232,7 +329,13 @@ export const ProfilePage = ({ userProfile, setCurrentPage }: { userProfile?: any
                             ) : posts.length > 0 ? (
                                 <div className="space-y-6">
                                     {posts.map(post => (
-                                        <PostCard key={post.id} post={post} currentUserId={userProfile?.id} />
+                                        <PostCard 
+                                            key={post.id} 
+                                            post={post} 
+                                            currentUserId={userProfile?.id} 
+                                            setCurrentPage={setCurrentPage}
+                                            setViewUserId={setViewUserId}
+                                        />
                                     ))}
                                 </div>
                             ) : (
@@ -253,4 +356,3 @@ export const ProfilePage = ({ userProfile, setCurrentPage }: { userProfile?: any
         </div>
     );
 };
-
