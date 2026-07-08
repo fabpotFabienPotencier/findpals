@@ -22,18 +22,30 @@ function App() {
         
         // Check for existing encrypted auth token
         const checkAuth = async () => {
-            const stored = localStorage.getItem('auth_token');
-            if (stored) {
-                // In a full implementation you'd verify via /auth/me; for now just trust presence
+            // Handle cross-subdomain auth transfer
+            const urlParams = new URLSearchParams(window.location.search);
+            const authTransferToken = urlParams.get('auth_transfer');
+            
+            if (authTransferToken) {
+                // Save the transferred token into this subdomain's secure vault
+                await secureStorage.setItem('auth_token', authTransferToken);
+                // Strip the token from the URL for security
+                window.history.replaceState({}, document.title, window.location.pathname);
+                setCurrentPage('feed');
+                return;
+            }
+
+            const token = await secureStorage.getItem('auth_token');
+            
+            if (token) {
                 if (hostname === 'account.findpals.xyz') {
-                    // Redirect to social if already logged in
-                    window.location.href = 'https://social.findpals.xyz';
+                    // Pass the real token to the social subdomain so it can encrypt it locally
+                    window.location.href = `https://social.findpals.xyz?auth_transfer=${encodeURIComponent(token)}`;
                 } else {
                     setCurrentPage('feed');
                 }
             } else {
                 if (hostname === 'social.findpals.xyz') {
-                    // Redirect to login if not authenticated
                     window.location.href = 'https://account.findpals.xyz';
                 }
             }
@@ -45,11 +57,12 @@ function App() {
     if (hostname === 'account.findpals.xyz') {
         return (
             <div className="min-h-screen bg-[#050505] text-white">
-                <OnboardingPage onComplete={(m) => {
+                <OnboardingPage onComplete={async (m) => {
                     setMode(m as 'communication-only' | 'general');
-                    // Successfully logged in, redirect to social feed
-                    localStorage.setItem('auth_token', 'temp_mock_token');
-                    window.location.href = 'https://social.findpals.xyz';
+                    const token = await secureStorage.getItem('auth_token');
+                    if (token) {
+                        window.location.href = `https://social.findpals.xyz?auth_transfer=${encodeURIComponent(token)}`;
+                    }
                 }} />
             </div>
         );
