@@ -176,3 +176,10 @@ export const notifications = {
     markAsRead: (id: string) => api.patch(`/notifications/${id}/read`),
     markAllAsRead: () => api.patch('/notifications/read-all'),
 };
+
+// ── Messaging ─────────────────────────────────────────────
+
+export const messaging = {
+    sendMessage: (chatId: string, content: string, type: 'text' | 'image' | 'video' | 'file' = 'text') =>
+        api.post('/messaging/message', { chatId, content, type }),
+};

@@ -1,4 +1,4 @@
-import { Body, Controller, Param, Post, Req } from '@nestjs/common';
+import { Body, Controller, Param, Post, Req, UnauthorizedException } from '@nestjs/common';
 import { LiveRoomService } from './live-room.service';
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
@@ -11,14 +11,21 @@ export class LiveStreamController {
         private readonly jwtService: JwtService,
     ) { }
 
+    private extractUserId(req: Request): string {
+        const authHeader = req.headers.authorization;
+        if (!authHeader) throw new UnauthorizedException('Missing Authorization header');
+        const [, token] = authHeader.split(' ');
+        try {
+            const payload: any = this.jwtService.verify(token);
+            return payload.sub;
+        } catch {
+            throw new UnauthorizedException('Invalid or expired token');
+        }
+    }
+
     @Post('rooms')
     async createRoom(@Req() req: Request, @Body() body: any) {
-        const authHeader = req.headers.authorization;
-        if (!authHeader) {
-            throw new Error('Missing Authorization header');
-        }
-        const [, token] = authHeader.split(' ');
-        const payload: any = this.jwtService.decode(token);
+        const userId = this.extractUserId(req);
 
         const dto = {
             title: body.title as string,
@@ -27,20 +34,14 @@ export class LiveStreamController {
             isRecordingRequested: body.isRecordingRequested,
         };
 
-        return this.liveRoomService.createRoom(payload.sub, dto);
+        return this.liveRoomService.createRoom(userId, dto);
     }
 
     @Post('rooms/:id/tip')
     async tipRoom(@Req() req: Request, @Param('id') roomId: string, @Body() body: any) {
-        const authHeader = req.headers.authorization;
-        if (!authHeader) {
-            throw new Error('Missing Authorization header');
-        }
-        const [, token] = authHeader.split(' ');
-        const payload: any = this.jwtService.decode(token);
-
+        const userId = this.extractUserId(req);
         const amount = Number(body.amount);
-        return this.liveRoomService.tipAndGrantAccess(roomId, payload.sub, amount);
+        return this.liveRoomService.tipAndGrantAccess(roomId, userId, amount);
     }
 
     @Post('rooms/:id/recording')

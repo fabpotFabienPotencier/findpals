@@ -226,21 +226,39 @@ export class FeedService {
         const creator = await this.userRepository.findOne({ where: { id: post.authorId } });
         if (!creator) throw new NotFoundException('Creator not found');
 
-        // Transfer funds
-        buyer.walletBalance = Number(buyer.walletBalance) - Number(post.price);
-        creator.walletBalance = Number(creator.walletBalance) + Number(post.price);
+        // Execute transactionally with pessimistic locking
+        await this.postRepository.manager.transaction(async (manager) => {
+            const txBuyer = await manager.findOne(User, {
+                where: { id: userId },
+                lock: { mode: 'pessimistic_write' },
+            });
+            const txCreator = await manager.findOne(User, {
+                where: { id: post.authorId },
+                lock: { mode: 'pessimistic_write' },
+            });
 
-        await this.userRepository.save(buyer);
-        await this.userRepository.save(creator);
+            if (!txBuyer || !txCreator) {
+                throw new NotFoundException('Buyer or creator not found');
+            }
 
-        // Record Transaction
-        const tx = new Transaction();
-        tx.amount = post.price;
-        tx.type = 'tip';
-        tx.reference = `post-unlock:${post.id}`;
-        tx.fromUser = buyer;
-        tx.toUser = creator;
-        await this.transactionRepository.save(tx);
+            if (Number(txBuyer.walletBalance) < Number(post.price)) {
+                throw new ConflictException('Insufficient wallet balance');
+            }
+
+            txBuyer.walletBalance = Number(txBuyer.walletBalance) - Number(post.price);
+            txCreator.walletBalance = Number(txCreator.walletBalance) + Number(post.price);
+
+            await manager.save(txBuyer);
+            await manager.save(txCreator);
+
+            const tx = new Transaction();
+            tx.amount = post.price;
+            tx.type = 'tip';
+            tx.reference = `post-unlock:${post.id}`;
+            tx.fromUser = txBuyer;
+            tx.toUser = txCreator;
+            await manager.save(tx);
+        });
 
         // Notify Creator
         const buyerName = buyer.displayName || buyer.username || 'Someone';

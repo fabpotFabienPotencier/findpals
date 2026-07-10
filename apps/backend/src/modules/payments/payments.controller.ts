@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Query, Req } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, Req, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
 import { FlutterwaveService } from './flutterwave.service';
@@ -10,18 +10,27 @@ export class PaymentsController {
         private readonly flutterwaveService: FlutterwaveService,
     ) { }
 
+    private extractUserId(req: Request): string {
+        const authHeader = req.headers.authorization;
+        if (!authHeader) throw new UnauthorizedException('Missing Authorization header');
+        const [, token] = authHeader.split(' ');
+        try {
+            const payload: any = this.jwtService.verify(token);
+            return payload.sub;
+        } catch {
+            throw new UnauthorizedException('Invalid or expired token');
+        }
+    }
+
     @Post('flutterwave/initialize')
     async initializeFlutterwave(@Req() req: Request, @Body() body: any) {
-        const authHeader = req.headers.authorization;
-        if (!authHeader) throw new Error('Missing Authorization header');
-        const [, token] = authHeader.split(' ');
-        const payload: any = this.jwtService.decode(token);
+        const userId = this.extractUserId(req);
 
         const amount = Number(body.amount);
         const currency = (body.currency || 'USD') as string;
         const redirectUrl = (body.redirectUrl || 'https://findpals.xyz') as string;
 
-        return this.flutterwaveService.initializeWalletDeposit(payload.sub, amount, currency, redirectUrl);
+        return this.flutterwaveService.initializeWalletDeposit(userId, amount, currency, redirectUrl);
     }
 
     // Optional: frontend can poll verify by tx_ref
@@ -41,20 +50,14 @@ export class PaymentsController {
 
     @Get('transactions')
     async getMyTransactions(@Req() req: Request) {
-        const authHeader = req.headers.authorization;
-        if (!authHeader) throw new Error('Missing Authorization header');
-        const [, token] = authHeader.split(' ');
-        const payload: any = this.jwtService.decode(token);
-        return this.flutterwaveService.getUserTransactions(payload.sub);
+        const userId = this.extractUserId(req);
+        return this.flutterwaveService.getUserTransactions(userId);
     }
 
     @Post('withdraw')
     async withdraw(@Req() req: Request, @Body() body: { amount: number }) {
-        const authHeader = req.headers.authorization;
-        if (!authHeader) throw new Error('Missing Authorization header');
-        const [, token] = authHeader.split(' ');
-        const payload: any = this.jwtService.decode(token);
-        return this.flutterwaveService.withdrawWallet(payload.sub, Number(body.amount));
+        const userId = this.extractUserId(req);
+        return this.flutterwaveService.withdrawWallet(userId, Number(body.amount));
     }
 }
 

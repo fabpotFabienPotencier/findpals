@@ -184,10 +184,33 @@ export class FlutterwaveService {
         const currentBalance = Number(user.walletBalance);
         if (currentBalance < amount) throw new Error('Insufficient wallet balance');
         
+        // Deduct balance first
         user.walletBalance = currentBalance - amount;
         await this.userRepository.save(user);
         
         const txRef = `withdrawal_${userId}_${Date.now()}`;
+        
+        // Execute real transfer request via Flutterwave payout API (sandbox access bank details)
+        try {
+            await this.flwFetch<any>('/transfers', {
+                method: 'POST',
+                body: JSON.stringify({
+                    account_bank: "044", // Access Bank
+                    account_number: "0690000032", // Sandbox success account
+                    amount: amount,
+                    narration: `findpals wallet withdrawal - ${user.username}`,
+                    currency: "NGN",
+                    reference: txRef,
+                    debit_currency: "NGN"
+                }),
+            });
+        } catch (error: any) {
+            // Rollback balance on failure
+            user.walletBalance = currentBalance;
+            await this.userRepository.save(user);
+            throw new Error(`Payout failed: ${error.message || error}`);
+        }
+
         const tx = new Transaction();
         tx.amount = amount;
         tx.type = 'withdrawal';

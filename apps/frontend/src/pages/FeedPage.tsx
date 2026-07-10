@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Heart, MessageCircle, Share2, MoreHorizontal, Zap, Loader2, Trash2, Camera, CheckCircle2, Lock } from 'lucide-react';
-import { feed, upload } from '../services/api';
+import { feed, upload, messaging } from '../services/api';
 import { secureStorage } from '../utils/secureStorage';
 
 export type FeedPost = {
@@ -406,13 +406,35 @@ export const FeedPage = ({
     const [uploadingStoryMedia, setUploadingStoryMedia] = useState(false);
     const [creatingStory, setCreatingStory] = useState(false);
     const [unlocking, setUnlocking] = useState(false);
-
-    // Media attachment state
-    const fileInputRef = useRef<HTMLInputElement>(null);
-    const [attachedMediaUrl, setAttachedMediaUrl] = useState<string | null>(null);
-    const [uploadingMedia, setUploadingMedia] = useState(false);
+    const [storySuccessMessage, setStorySuccessMessage] = useState<string | null>(null);
 
     const currentUserId = userProfile?.id || null;
+
+    const handleSendStoryReply = async (story: any, replyText: string) => {
+        if (!replyText.trim() || !currentUserId || !story.author?.id) return;
+        const chatId = `dm-${[currentUserId, story.author.id].sort().join('-')}`;
+        try {
+            await messaging.sendMessage(chatId, replyText, 'text');
+            setStorySuccessMessage('Reply sent!');
+            setTimeout(() => setStorySuccessMessage(null), 2000);
+        } catch (err: any) {
+            alert(err.response?.data?.message || 'Failed to send reply');
+        }
+    };
+
+    const handleSendStoryReaction = async (story: any) => {
+        if (!currentUserId || !story.author?.id) return;
+        const chatId = `dm-${[currentUserId, story.author.id].sort().join('-')}`;
+        try {
+            await messaging.sendMessage(chatId, "❤️", 'text');
+            setStorySuccessMessage('Reaction sent!');
+            setTimeout(() => setStorySuccessMessage(null), 2000);
+        } catch (err: any) {
+            alert(err.response?.data?.message || 'Failed to send reaction');
+        }
+    };
+    const [attachedMediaUrl, setAttachedMediaUrl] = useState<string | null>(null);
+    const [uploadingMedia, setUploadingMedia] = useState(false);
 
     const canPost = useMemo(() => composerText.trim().length > 0 || !!attachedMediaUrl, [composerText, attachedMediaUrl]);
 
@@ -592,7 +614,7 @@ export const FeedPage = ({
                                 ) : (
                                     <span className="text-white text-lg font-bold">{(userProfile.displayName || userProfile.username)[0].toUpperCase()}</span>
                                 )}
-                                <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center text-white border-2 border-[#090b1e]">
+                                <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center text-white border-2 border-[var(--bg-secondary)]">
                                     <span className="text-sm font-bold">+</span>
                                 </div>
                             </div>
@@ -607,7 +629,7 @@ export const FeedPage = ({
                         return (
                             <div key={story.id} className="flex flex-col items-center gap-1 flex-shrink-0 cursor-pointer" onClick={() => setActiveStoryIndex(idx)}>
                                 <div className="w-16 h-16 rounded-full p-[2.5px] bg-gradient-to-tr from-pink-500 via-purple-500 to-orange-500 hover:scale-105 transition-all">
-                                    <div className="w-full h-full rounded-full bg-[#090b1e] p-[2px]">
+                                    <div className="w-full h-full rounded-full bg-[var(--bg-secondary)] p-[2px]">
                                         {sAvatar ? (
                                             <img src={sAvatar} alt="avatar" className="w-full h-full rounded-full object-cover" />
                                         ) : (
@@ -757,9 +779,9 @@ export const FeedPage = ({
 
             {/* Story Creator Modal */}
             {storyUploadOpen && (
-                <div className="fixed inset-0 bg-black/85 backdrop-blur-xl z-[100] flex items-center justify-center p-4">
+                <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-[100] flex items-center justify-center p-4">
                     <div className="theme-card rounded-3xl p-6 max-w-md w-full border theme-border">
-                        <h3 className="text-lg font-bold text-white mb-4 uppercase tracking-wider font-mono">Create New Story</h3>
+                        <h3 className="text-lg font-bold theme-text-primary mb-4 uppercase tracking-wider font-mono">Create New Story</h3>
                         
                         <div className="space-y-4">
                             {/* File selector or preview */}
@@ -774,7 +796,7 @@ export const FeedPage = ({
                                     </button>
                                 </div>
                             ) : (
-                                <div className="border-2 border-dashed theme-border rounded-2xl p-8 flex flex-col items-center justify-center cursor-pointer hover:bg-white/5 transition-all min-h-[200px]" onClick={() => {
+                                <div className="border-2 border-dashed theme-border rounded-2xl p-8 flex flex-col items-center justify-center cursor-pointer hover:bg-black/5 dark:hover:bg-white/5 transition-all min-h-[200px]" onClick={() => {
                                     const input = document.createElement('input');
                                     input.type = 'file';
                                     input.accept = 'image/*';
@@ -786,7 +808,7 @@ export const FeedPage = ({
                                     ) : (
                                         <Camera className="theme-text-accent mb-2" size={28} />
                                     )}
-                                    <span className="text-xs text-slate-400 font-mono text-center">
+                                    <span className="text-xs theme-text-muted font-mono text-center">
                                         {uploadingStoryMedia ? 'Uploading image...' : 'Click to upload story image'}
                                     </span>
                                 </div>
@@ -794,18 +816,18 @@ export const FeedPage = ({
 
                             {/* Caption input */}
                             <div>
-                                <label className="text-[10px] uppercase font-mono tracking-wider text-slate-500 block mb-1">Caption (optional)</label>
+                                <label className="text-[10px] uppercase font-mono tracking-wider theme-text-muted block mb-1">Caption (optional)</label>
                                 <input
                                     type="text"
                                     value={storyText}
                                     onChange={(e) => setStoryText(e.target.value)}
-                                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-xs text-white focus:border-blue-500 focus:outline-none transition-colors"
+                                    className="w-full theme-input rounded-xl px-4 py-2.5 text-xs focus:border-blue-500 focus:outline-none transition-colors"
                                     placeholder="Type a story caption..."
                                 />
                             </div>
 
                             {/* Premium toggle */}
-                            <div className="flex justify-between items-center bg-white/5 p-3 rounded-xl border border-white/5">
+                            <div className="flex justify-between items-center theme-bg-surface p-3 rounded-xl border theme-border">
                                 <label className="flex items-center gap-2 cursor-pointer">
                                     <input
                                         type="checkbox"
@@ -814,19 +836,19 @@ export const FeedPage = ({
                                         className="rounded border-white/10 bg-transparent text-blue-500 focus:ring-0 focus:ring-offset-0 w-4 h-4"
                                     />
                                     <div>
-                                        <span className="text-xs font-bold text-white block">Premium Story</span>
-                                        <span className="text-[10px] text-slate-500 font-mono">Unlock via wallet balance</span>
+                                        <span className="text-xs font-bold theme-text-primary block">Premium Story</span>
+                                        <span className="text-[10px] theme-text-muted font-mono">Unlock via wallet balance</span>
                                     </div>
                                 </label>
 
                                 {storyIsPremium && (
-                                    <div className="flex items-center gap-1 bg-white/5 border border-white/10 rounded-lg px-2.5 py-1">
-                                        <span className="text-xs text-slate-500 font-mono">$</span>
+                                    <div className="flex items-center gap-1 theme-bg-surface border theme-border rounded-lg px-2.5 py-1">
+                                        <span className="text-xs theme-text-muted font-mono">$</span>
                                         <input
                                             type="number"
                                             value={storyPrice}
                                             onChange={(e) => setStoryPrice(e.target.value)}
-                                            className="w-14 bg-transparent border-none p-0 text-xs text-white font-mono focus:ring-0 focus:outline-none"
+                                            className="w-14 bg-transparent border-none p-0 text-xs theme-text-primary font-mono focus:ring-0 focus:outline-none"
                                             placeholder="2.99"
                                             step="0.01"
                                             min="0.10"
@@ -840,7 +862,7 @@ export const FeedPage = ({
                             <button
                                 disabled={creatingStory || uploadingStoryMedia}
                                 onClick={() => setStoryUploadOpen(false)}
-                                className="flex-1 py-2.5 border theme-border hover:bg-white/5 transition-all text-xs font-bold uppercase tracking-wider rounded-xl text-slate-400"
+                                className="flex-1 py-2.5 border theme-border hover:bg-black/5 dark:hover:bg-white/5 transition-all text-xs font-bold uppercase tracking-wider rounded-xl theme-text-secondary"
                             >
                                 Cancel
                             </button>
@@ -883,6 +905,11 @@ export const FeedPage = ({
 
                         {/* Central Phone mock frame */}
                         <div className="relative w-full max-w-lg aspect-[9/16] bg-black/60 md:border md:theme-border md:rounded-3xl overflow-hidden flex flex-col justify-between shadow-[0_0_80px_rgba(0,0,0,0.8)]">
+                            {storySuccessMessage && (
+                                <div className="absolute top-20 left-1/2 -translate-x-1/2 bg-blue-600 text-white text-xs font-bold px-4 py-2 rounded-full shadow-lg z-50 animate-pulse">
+                                    {storySuccessMessage}
+                                </div>
+                            )}
                             {/* Top Bar (Progress line + Profile details) */}
                             <div className="absolute top-0 left-0 right-0 p-4 bg-gradient-to-b from-black/80 to-transparent z-20">
                                 {/* Segmented progress bar */}
@@ -972,13 +999,13 @@ export const FeedPage = ({
                                     className="flex-1 bg-white/10 hover:bg-white/15 focus:bg-white/20 border-none rounded-full px-5 py-3 text-xs text-white placeholder-slate-400 focus:outline-none focus:ring-0 transition-all"
                                     onKeyDown={(e: any) => {
                                         if (e.key === 'Enter' && e.target.value.trim()) {
-                                            alert('Reply sent successfully!');
+                                            handleSendStoryReply(activeStory, e.target.value.trim());
                                             e.target.value = '';
                                         }
                                     }}
                                 />
                                 <button onClick={() => {
-                                    alert('Reaction sent!');
+                                    handleSendStoryReaction(activeStory);
                                 }} className="text-pink-500 hover:scale-110 transition-all p-2 bg-white/10 rounded-full">
                                     <Heart size={16} fill="currentColor" />
                                 </button>

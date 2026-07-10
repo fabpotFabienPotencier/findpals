@@ -153,6 +153,7 @@ export const MessagingPage = ({
 
             const s = io(`${SOCKET_URL}/messaging`, {
                 transports: ['websocket'],
+                auth: { token },
             });
             setSocket(s);
 

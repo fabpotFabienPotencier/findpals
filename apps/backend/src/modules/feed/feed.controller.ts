@@ -1,4 +1,4 @@
-import { Controller, Post, Get, Delete, Body, Query, Param, Req } from '@nestjs/common';
+import { Controller, Post, Get, Delete, Body, Query, Param, Req, UnauthorizedException } from '@nestjs/common';
 import { FeedService } from './feed.service';
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
@@ -12,10 +12,14 @@ export class FeedController {
 
     private extractUserId(req: Request): string {
         const authHeader = req.headers.authorization;
-        if (!authHeader) throw new Error('Missing Authorization header');
+        if (!authHeader) throw new UnauthorizedException('Missing Authorization header');
         const [, token] = authHeader.split(' ');
-        const payload: any = this.jwtService.decode(token);
-        return payload.sub;
+        try {
+            const payload: any = this.jwtService.verify(token);
+            return payload.sub;
+        } catch {
+            throw new UnauthorizedException('Invalid or expired token');
+        }
     }
 
     private tryExtractUserId(req: Request): string | undefined {
@@ -23,7 +27,7 @@ export class FeedController {
             const authHeader = req.headers.authorization;
             if (!authHeader) return undefined;
             const [, token] = authHeader.split(' ');
-            const payload: any = this.jwtService.decode(token);
+            const payload: any = this.jwtService.verify(token);
             return payload?.sub || undefined;
         } catch {
             return undefined;
@@ -31,9 +35,10 @@ export class FeedController {
     }
 
     @Post('post')
-    async createPost(@Body() body: any) {
+    async createPost(@Req() req: Request, @Body() body: any) {
+        const userId = this.extractUserId(req);
         return this.feedService.createPost(
-            body.authorId, 
+            userId, 
             body.content, 
             body.type, 
             body.mediaUrl,
@@ -97,8 +102,9 @@ export class FeedController {
     }
 
     @Post('comment')
-    async addComment(@Body() body: any) {
-        return this.feedService.addComment(body.postId, body.authorId, body.content);
+    async addComment(@Req() req: Request, @Body() body: any) {
+        const userId = this.extractUserId(req);
+        return this.feedService.addComment(body.postId, userId, body.content);
     }
 
     @Get('post/:postId/comments')

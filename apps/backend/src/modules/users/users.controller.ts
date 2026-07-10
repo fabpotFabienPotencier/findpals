@@ -1,4 +1,4 @@
-import { Controller, Get, Patch, Post, Delete, Param, Body, Query, Req } from '@nestjs/common';
+import { Controller, Get, Patch, Post, Delete, Param, Body, Query, Req, UnauthorizedException } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
@@ -12,10 +12,14 @@ export class UsersController {
 
     private extractUserId(req: Request): string {
         const authHeader = req.headers.authorization;
-        if (!authHeader) throw new Error('Missing Authorization header');
+        if (!authHeader) throw new UnauthorizedException('Missing Authorization header');
         const [, token] = authHeader.split(' ');
-        const payload: any = this.jwtService.decode(token);
-        return payload.sub;
+        try {
+            const payload: any = this.jwtService.verify(token);
+            return payload.sub;
+        } catch {
+            throw new UnauthorizedException('Invalid or expired token');
+        }
     }
 
     @Get('me')
