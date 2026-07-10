@@ -55,7 +55,7 @@ export const MessagingPage = ({
     const [input, setInput] = useState('');
     const [typingUser, setTypingUser] = useState<string | null>(null);
     const [selfId, setSelfId] = useState<string | null>(null);
-    const [mobileActiveTab, setMobileActiveTab] = useState<'list' | 'chat'>('list');
+    const [mobileActiveTab, setMobileActiveTab] = useState<'list' | 'chat'>(activeChat ? 'chat' : 'list');
     const [loading, setLoading] = useState(true);
 
     // Sidebar search users to start a new chat
@@ -65,6 +65,42 @@ export const MessagingPage = ({
 
     // Local tracking of created DM conversations during session
     const [localDMs, setLocalDMs] = useState<ChatPreview[]>([]);
+
+    useEffect(() => {
+        if (activeChat && activeChat.id !== currentChatId) {
+            setCurrentChatId(activeChat.id);
+            setMobileActiveTab('chat');
+        }
+    }, [activeChat, currentChatId]);
+
+    useEffect(() => {
+        if (!userProfile?.id) return;
+        const fetchFollowing = async () => {
+            try {
+                const res = await users.getFollowing(userProfile.id, 1);
+                // Depending on backend pagination response format (data.items or data)
+                const followingUsers = res.data?.items || res.data || [];
+                const followingDMs: ChatPreview[] = (Array.isArray(followingUsers) ? followingUsers : []).map(u => {
+                    const targetUser = u.following || u; // handle if it returns Follow objects or User objects
+                    return {
+                        id: `dm-${[userProfile.id, targetUser.id].sort().join('-')}`,
+                        name: targetUser.displayName || targetUser.username,
+                        lastMessage: 'Tap to send a secure message',
+                        isDM: true
+                    };
+                });
+                
+                setLocalDMs(prev => {
+                    const existingIds = new Set(prev.map(p => p.id));
+                    const newDMs = followingDMs.filter(dm => !existingIds.has(dm.id) && dm.name);
+                    return [...prev, ...newDMs];
+                });
+            } catch (err) {
+                console.error('Failed to load following for DMs', err);
+            }
+        };
+        fetchFollowing();
+    }, [userProfile?.id]);
 
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
