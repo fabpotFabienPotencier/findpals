@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, useRef } from 'react';
 import { io, Socket } from 'socket.io-client';
-import { Send, Phone, Video, Info, Paperclip, Smile, Loader2, Search, User } from 'lucide-react';
+import { Send, Phone, Video, Info, Paperclip, Smile, Loader2, Search, User, ArrowLeft } from 'lucide-react';
 import { secureStorage } from '../utils/secureStorage';
 import { users } from '../services/api';
 
@@ -41,11 +41,13 @@ const SOCKET_URL = getSocketUrl(import.meta.env.VITE_API_URL || 'http://localhos
 export const MessagingPage = ({ 
     activeChat, 
     setActiveChat, 
-    userProfile 
+    userProfile,
+    setCurrentPage
 }: { 
     activeChat?: { id: string; name: string } | null;
     setActiveChat?: (chat: { id: string; name: string } | null) => void;
     userProfile?: any;
+    setCurrentPage?: (page: string) => void;
 }) => {
     const [socket, setSocket] = useState<Socket | null>(null);
     const [currentChatId, setCurrentChatId] = useState<string>(activeChat?.id || 'global-lobby');
@@ -53,6 +55,7 @@ export const MessagingPage = ({
     const [input, setInput] = useState('');
     const [typingUser, setTypingUser] = useState<string | null>(null);
     const [selfId, setSelfId] = useState<string | null>(null);
+    const [mobileActiveTab, setMobileActiveTab] = useState<'list' | 'chat'>('list');
     const [loading, setLoading] = useState(true);
 
     // Sidebar search users to start a new chat
@@ -131,6 +134,7 @@ export const MessagingPage = ({
             setActiveChat({ id: dmChatId, name: partnerName });
         }
         setCurrentChatId(dmChatId);
+        setMobileActiveTab('chat');
         setSearchQuery('');
         setSearchResults([]);
     };
@@ -221,9 +225,9 @@ export const MessagingPage = ({
     const activeChatDetail = chatsList.find(c => c.id === currentChatId);
 
     return (
-        <div className="flex h-[calc(100vh-100px)] theme-card rounded-3xl overflow-hidden mt-4">
+        <div className="flex h-[calc(100vh-120px)] md:h-[calc(100vh-100px)] theme-card rounded-3xl overflow-hidden mt-0 md:mt-4">
             {/* Chats List Sidebar */}
-            <div className="w-80 border-r theme-border flex flex-col theme-bg-secondary">
+            <div className={`w-full md:w-80 border-r theme-border flex flex-col theme-bg-secondary ${mobileActiveTab === 'chat' ? 'hidden md:flex' : 'flex'}`}>
                 {/* Search / DM creation area */}
                 <div className="p-4 border-b theme-border relative">
                     <div className="relative">
@@ -283,6 +287,7 @@ export const MessagingPage = ({
                             key={chat.id}
                             onClick={() => {
                                 setCurrentChatId(chat.id);
+                                setMobileActiveTab('chat');
                                 if (setActiveChat) {
                                     if (chat.isDM) {
                                         setActiveChat({ id: chat.id, name: chat.name });
@@ -312,10 +317,16 @@ export const MessagingPage = ({
             </div>
 
             {/* Chat Conversation Area */}
-            <div className="flex-1 flex flex-col bg-slate-950/5 dark:bg-slate-950/30">
+            <div className={`flex-1 flex flex-col bg-slate-950/5 dark:bg-slate-950/30 ${mobileActiveTab === 'list' ? 'hidden md:flex' : 'flex'}`}>
                 {/* Chat Header */}
                 <div className="px-6 py-4 border-b theme-border flex justify-between items-center theme-bg-secondary">
                     <div className="flex items-center gap-3">
+                        <button
+                            onClick={() => setMobileActiveTab('list')}
+                            className="md:hidden p-1.5 rounded-full hover:theme-bg-secondary theme-text-muted hover:theme-text-primary transition-colors mr-1"
+                        >
+                            <ArrowLeft size={18} />
+                        </button>
                         <div className="w-10 h-10 rounded-full theme-bg-surface border theme-border flex items-center justify-center font-bold">
                             {activeChatDetail?.isDM ? activeChatDetail.name[0]?.toUpperCase() : <User size={18} className="theme-text-accent" />}
                         </div>
@@ -327,8 +338,8 @@ export const MessagingPage = ({
                         </div>
                     </div>
                     <div className="flex items-center gap-4 theme-text-muted">
-                        <button className="hover:theme-text-primary transition-colors"><Phone size={20} /></button>
-                        <button className="hover:theme-text-primary transition-colors"><Video size={20} /></button>
+                        <button onClick={() => setCurrentPage?.('live')} className="hover:theme-text-primary transition-colors"><Phone size={20} /></button>
+                        <button onClick={() => setCurrentPage?.('live')} className="hover:theme-text-primary transition-colors"><Video size={20} /></button>
                         <button className="hover:theme-text-primary transition-colors"><Info size={20} /></button>
                     </div>
                 </div>

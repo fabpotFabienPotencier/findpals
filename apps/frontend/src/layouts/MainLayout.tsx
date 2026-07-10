@@ -1,6 +1,6 @@
-import { type ReactNode } from 'react';
-import { motion } from 'framer-motion';
-import { Home, Search, Plus, MessageSquare, User, Bell, Tv, Settings, Sun, Moon } from 'lucide-react';
+import { type ReactNode, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Home, Search, Plus, MessageSquare, User, Bell, Tv, Settings, Sun, Moon, Video, Zap, X } from 'lucide-react';
 
 const SidebarItem = ({ icon: Icon, label, active = false, onClick }: { icon: any, label: string, active?: boolean, onClick?: () => void }) => (
     <div
@@ -17,8 +17,8 @@ const SidebarItem = ({ icon: Icon, label, active = false, onClick }: { icon: any
 );
 
 const BottomNavItem = ({ icon: Icon, active, onClick, badge }: { icon: any, active: boolean, onClick: () => void, badge?: number }) => (
-    <div className="relative flex flex-col items-center justify-center w-16 h-full cursor-pointer" onClick={onClick}>
-        <Icon size={24} className={`transition-colors ${active ? 'theme-text-accent' : 'theme-text-muted'}`} strokeWidth={active ? 2.5 : 2} />
+    <div className="relative flex flex-col items-center justify-center w-12 h-full cursor-pointer" onClick={onClick}>
+        <Icon size={22} className={`transition-colors ${active ? 'theme-text-accent' : 'theme-text-muted'}`} strokeWidth={active ? 2.5 : 2} />
         {badge && (
             <span className="absolute top-2 right-2 w-4 h-4 bg-red-600 rounded-full text-[9px] font-bold flex items-center justify-center text-white border border-white dark:border-black shadow-[0_0_5px_rgba(239,68,68,0.5)]">
                 {badge}
@@ -45,6 +45,7 @@ export const MainLayout = ({
     theme?: 'light' | 'dark',
     toggleTheme?: () => void
 }) => {
+    const [createOpen, setCreateOpen] = useState(false);
     return (
         <div className="flex flex-col md:flex-row h-screen theme-bg-primary theme-text-primary overflow-hidden font-sans">
             
@@ -81,13 +82,16 @@ export const MainLayout = ({
                         findpals<span className="theme-text-accent">social</span>
                     </h1>
                 </div>
-                <nav className="flex-1 px-4 space-y-2 mt-4">
+                <nav className="flex-1 px-4 space-y-1.5 mt-4 overflow-y-auto custom-scrollbar">
                     <SidebarItem icon={Home} label="Home" active={currentPage === 'feed'} onClick={() => setCurrentPage('feed')} />
                     <SidebarItem icon={Search} label="Search" active={currentPage === 'search'} onClick={() => setCurrentPage('search')} />
-                    <SidebarItem icon={Tv} label="Reels" active={currentPage === 'reels'} onClick={() => setCurrentPage('reels')} />
+                    <SidebarItem icon={Video} label="Reels" active={currentPage === 'reels'} onClick={() => setCurrentPage('reels')} />
+                    <SidebarItem icon={Tv} label="Live Stream" active={currentPage === 'live'} onClick={() => setCurrentPage('live')} />
                     <SidebarItem icon={MessageSquare} label="Inbox" active={currentPage === 'messages'} onClick={() => setCurrentPage('messages')} />
+                    <SidebarItem icon={Zap} label="Creator Hub" active={currentPage === 'creator'} onClick={() => setCurrentPage('creator')} />
                     <SidebarItem icon={Bell} label="Notifications" active={currentPage === 'notifications'} onClick={() => setCurrentPage('notifications')} />
                     <SidebarItem icon={User} label="Profile" active={currentPage === 'profile'} onClick={() => setCurrentPage('profile')} />
+                    <SidebarItem icon={Settings} label="Settings" active={currentPage === 'settings'} onClick={() => setCurrentPage('settings')} />
                 </nav>
                 <div className="p-4 border-t theme-border flex flex-col gap-3">
                     <button 
@@ -98,10 +102,10 @@ export const MainLayout = ({
                         {theme === 'light' ? 'Dark Mode' : 'Light Mode'}
                     </button>
                     <button 
-                        onClick={() => setCurrentPage('creator')}
+                        onClick={() => setCreateOpen(true)}
                         className="w-full py-3 theme-button-accent font-bold rounded-2xl transition-all shadow-[0_0_15px_rgba(0,170,255,0.2)] text-sm"
                     >
-                        Create Post
+                        Create
                     </button>
                 </div>
             </aside>
@@ -128,17 +132,18 @@ export const MainLayout = ({
 
             {/* Mobile Bottom Navigation Bar */}
             <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white/90 dark:bg-[#050505]/90 backdrop-blur-xl border-t theme-border pb-safe z-50">
-                <div className="flex justify-around items-center h-16 px-2">
+                <div className="flex justify-around items-center h-16 px-1">
                     <BottomNavItem icon={Home} active={currentPage === 'feed'} onClick={() => setCurrentPage('feed')} />
                     <BottomNavItem icon={Search} active={currentPage === 'search'} onClick={() => setCurrentPage('search')} />
+                    <BottomNavItem icon={Video} active={currentPage === 'reels'} onClick={() => setCurrentPage('reels')} />
                     
                     {/* Center Create Button */}
                     <div className="relative -top-5">
                         <button 
-                            className="w-14 h-14 theme-button-accent rounded-full flex items-center justify-center text-white shadow-[0_0_20px_rgba(0,170,255,0.4)] border-[4px] border-white dark:border-black transition-transform active:scale-95 animate-pulse"
-                            onClick={() => setCurrentPage('creator')}
+                            className="w-12 h-12 theme-button-accent rounded-full flex items-center justify-center text-white shadow-[0_0_20px_rgba(0,170,255,0.4)] border-[4px] border-white dark:border-black transition-transform active:scale-95 animate-pulse"
+                            onClick={() => setCreateOpen(true)}
                         >
-                            <Plus size={28} />
+                            <Plus size={24} />
                         </button>
                     </div>
                     
@@ -146,6 +151,100 @@ export const MainLayout = ({
                     <BottomNavItem icon={User} active={currentPage === 'profile'} onClick={() => setCurrentPage('profile')} />
                 </div>
             </nav>
+
+            {/* Create Content Modal */}
+            <AnimatePresence>
+                {createOpen && (
+                    <motion.div 
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-end md:items-center justify-center p-0 md:p-4"
+                        onClick={() => setCreateOpen(false)}
+                    >
+                        <motion.div 
+                            initial={{ y: '100%' }}
+                            animate={{ y: 0 }}
+                            exit={{ y: '100%' }}
+                            transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+                            className="w-full md:max-w-md theme-card border-t md:border theme-border rounded-t-3xl md:rounded-3xl p-6 relative overflow-hidden"
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            <div className="flex justify-between items-center mb-6">
+                                <h3 className="text-lg font-bold theme-text-primary">Create Content</h3>
+                                <button 
+                                    onClick={() => setCreateOpen(false)}
+                                    className="p-1 rounded-full hover:theme-bg-secondary theme-text-muted hover:theme-text-primary transition-colors"
+                                >
+                                    <X size={20} />
+                                </button>
+                            </div>
+                            
+                            <div className="grid grid-cols-4 gap-3 mb-4">
+                                <button
+                                    onClick={() => {
+                                        setCurrentPage('feed');
+                                        setCreateOpen(false);
+                                        setTimeout(() => {
+                                            const inputEl = document.querySelector('textarea[placeholder*="Share your thoughts"]');
+                                            if (inputEl) {
+                                                (inputEl as HTMLTextAreaElement).focus();
+                                            }
+                                        }, 200);
+                                    }}
+                                    className="flex flex-col items-center justify-center p-3 rounded-2xl theme-bg-secondary border theme-border hover:border-blue-500/50 transition-all group"
+                                >
+                                    <div className="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
+                                        <MessageSquare size={20} />
+                                    </div>
+                                    <span className="text-[10px] font-bold theme-text-primary">Post</span>
+                                </button>
+                                
+                                <button
+                                    onClick={() => {
+                                        setCurrentPage('feed');
+                                        window.location.hash = '#create-story';
+                                        setCreateOpen(false);
+                                    }}
+                                    className="flex flex-col items-center justify-center p-3 rounded-2xl theme-bg-secondary border theme-border hover:border-pink-500/50 transition-all group"
+                                >
+                                    <div className="w-10 h-10 rounded-xl bg-pink-500/10 text-pink-400 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
+                                        <Plus size={20} />
+                                    </div>
+                                    <span className="text-[10px] font-bold theme-text-primary">Story</span>
+                                </button>
+
+                                <button
+                                    onClick={() => {
+                                        setCurrentPage('reels');
+                                        window.location.hash = '#create-reel';
+                                        setCreateOpen(false);
+                                    }}
+                                    className="flex flex-col items-center justify-center p-3 rounded-2xl theme-bg-secondary border theme-border hover:border-purple-500/50 transition-all group"
+                                >
+                                    <div className="w-10 h-10 rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
+                                        <Video size={20} />
+                                    </div>
+                                    <span className="text-[10px] font-bold theme-text-primary">Reel</span>
+                                </button>
+
+                                <button
+                                    onClick={() => {
+                                        setCurrentPage('live');
+                                        setCreateOpen(false);
+                                    }}
+                                    className="flex flex-col items-center justify-center p-3 rounded-2xl theme-bg-secondary border theme-border hover:border-red-500/50 transition-all group"
+                                >
+                                    <div className="w-10 h-10 rounded-xl bg-red-500/10 text-red-500 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
+                                        <Tv size={20} />
+                                    </div>
+                                    <span className="text-[10px] font-bold theme-text-primary">Live</span>
+                                </button>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     );
 };

@@ -425,6 +425,18 @@ export const ReelsPage = ({
         loadReels();
     }, []);
 
+    useEffect(() => {
+        const checkHash = () => {
+            if (window.location.hash === '#create-reel') {
+                setUploadOpen(true);
+                window.history.replaceState(null, '', ' ');
+            }
+        };
+        checkHash();
+        window.addEventListener('hashchange', checkHash);
+        return () => window.removeEventListener('hashchange', checkHash);
+    }, []);
+
     const handleScroll = () => {
         if (!scrollContainerRef.current) return;
         const scrollPosition = scrollContainerRef.current.scrollTop;

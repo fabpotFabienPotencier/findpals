@@ -36,7 +36,7 @@ export const SettingsPage = ({
 
     // Password change state
     const [showPasswordSection, setShowPasswordSection] = useState(false);
-    const [forgotPasswordEmail, setForgotPasswordEmail] = useState('');
+    const [forgotPasswordEmail, setForgotPasswordEmail] = useState(userProfile?.email || '');
     const [forgotPasswordLoading, setForgotPasswordLoading] = useState(false);
     const [forgotPasswordMsg, setForgotPasswordMsg] = useState<string | null>(null);
 
@@ -50,6 +50,7 @@ export const SettingsPage = ({
             setDisplayName(userProfile.displayName || '');
             setBio(userProfile.bio || '');
             setAvatarUrl(userProfile.avatarUrl || '');
+            setForgotPasswordEmail(userProfile.email || '');
         }
     }, [userProfile]);
 
@@ -138,7 +139,7 @@ export const SettingsPage = ({
     };
 
     return (
-        <div className="mt-8 space-y-8 pb-24">
+        <div className="mt-8 space-y-8 pb-36">
             <h2 className="text-xl font-bold tracking-widest uppercase text-slate-400">Settings Console</h2>
             
             {/* Profile Settings Section */}

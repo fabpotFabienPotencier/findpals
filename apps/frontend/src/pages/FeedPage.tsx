@@ -472,6 +472,18 @@ export const FeedPage = ({
         fetchStories();
     }, []);
 
+    useEffect(() => {
+        const checkHash = () => {
+            if (window.location.hash === '#create-story') {
+                setStoryUploadOpen(true);
+                window.history.replaceState(null, '', ' ');
+            }
+        };
+        checkHash();
+        window.addEventListener('hashchange', checkHash);
+        return () => window.removeEventListener('hashchange', checkHash);
+    }, []);
+
     const handleCreatePost = async () => {
         if (!canPost || creating) return;
         setCreating(true);
