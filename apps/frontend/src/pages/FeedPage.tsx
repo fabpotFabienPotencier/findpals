@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Heart, MessageCircle, Share2, MoreHorizontal, Zap, Loader2, Trash2, Camera, CheckCircle2 } from 'lucide-react';
+import { Heart, MessageCircle, Share2, MoreHorizontal, Zap, Loader2, Trash2, Camera, CheckCircle2, Lock } from 'lucide-react';
 import { feed, upload } from '../services/api';
 import { secureStorage } from '../utils/secureStorage';
 
@@ -405,6 +405,7 @@ export const FeedPage = ({
     const [storyPrice, setStoryPrice] = useState('2.99');
     const [uploadingStoryMedia, setUploadingStoryMedia] = useState(false);
     const [creatingStory, setCreatingStory] = useState(false);
+    const [unlocking, setUnlocking] = useState(false);
 
     // Media attachment state
     const fileInputRef = useRef<HTMLInputElement>(null);
