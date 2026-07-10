@@ -38,12 +38,12 @@ const getSocketUrl = (apiUrl: string) => {
 
 const SOCKET_URL = getSocketUrl(import.meta.env.VITE_API_URL || 'http://localhost:8023');
 
-export const MessagingPage = ({ 
-    activeChat, 
-    setActiveChat, 
+export const MessagingPage = ({
+    activeChat,
+    setActiveChat,
     userProfile,
     setCurrentPage
-}: { 
+}: {
     activeChat?: { id: string; name: string } | null;
     setActiveChat?: (chat: { id: string; name: string } | null) => void;
     userProfile?: any;
@@ -121,7 +121,7 @@ export const MessagingPage = ({
     const handleStartDM = (partner: any) => {
         const partnerName = partner.displayName || partner.username;
         const dmChatId = `dm-${[userProfile?.id, partner.id].sort().join('-')}`;
-        
+
         const newDM = {
             id: dmChatId,
             name: partnerName,
