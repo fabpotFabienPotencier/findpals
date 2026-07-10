@@ -214,7 +214,7 @@ export const SettingsPage = ({
                 <div className="border theme-border rounded-2xl p-4">
                     <button
                         onClick={() => setShowPasswordSection(!showPasswordSection)}
-                        className="flex items-center gap-3 text-sm font-bold text-white w-full text-left"
+                        className="flex items-center gap-3 text-sm font-bold theme-text-primary w-full text-left"
                     >
                         <Key size={18} className="text-blue-400" /> Change Password
                     </button>
@@ -248,7 +248,7 @@ export const SettingsPage = ({
                 <div className="border theme-border rounded-2xl p-4">
                     <button
                         onClick={() => setShow2FASection(!show2FASection)}
-                        className="flex items-center gap-3 text-sm font-bold text-white w-full text-left"
+                        className="flex items-center gap-3 text-sm font-bold theme-text-primary w-full text-left"
                     >
                         <Shield size={18} className="text-blue-400" /> Two-Factor Authentication
                     </button>

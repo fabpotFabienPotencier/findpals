@@ -7,6 +7,7 @@ import { Like } from '../../entities/like.entity';
 import { User } from '../../entities/user.entity';
 import { Transaction } from '../../entities/economy.entity';
 import { NotificationsService } from '../notifications/notifications.service';
+import { CacheService } from '../cache/cache.service';
 
 @Injectable()
 export class FeedService {
@@ -22,7 +23,18 @@ export class FeedService {
         @InjectRepository(Transaction)
         private readonly transactionRepository: Repository<Transaction>,
         private readonly notificationsService: NotificationsService,
+        private readonly cacheService: CacheService,
     ) { }
+
+    private async invalidateFeedCache() {
+        try {
+            await this.cacheService.delPattern('feed:*');
+            await this.cacheService.delPattern('reels:*');
+            await this.cacheService.delPattern('stories:*');
+        } catch (e) {
+            console.error('Failed to invalidate cache:', e);
+        }
+    }
 
     async createPost(
         authorId: string, 
@@ -44,6 +56,8 @@ export class FeedService {
         // Increment the user's denormalized postsCount
         await this.userRepository.increment({ id: authorId }, 'postsCount', 1);
 
+        await this.invalidateFeedCache();
+
         return saved;
     }
 
@@ -52,6 +66,7 @@ export class FeedService {
         if (!post) throw new NotFoundException('Post not found or not yours');
         await this.postRepository.remove(post);
         await this.userRepository.decrement({ id: userId }, 'postsCount', 1);
+        await this.invalidateFeedCache();
         return { success: true };
     }
 
@@ -86,6 +101,10 @@ export class FeedService {
     }
 
     async getFeed(requestingUserId?: string, page: number = 1, limit: number = 10) {
+        const cacheKey = `feed:${requestingUserId || 'public'}:${page}:${limit}`;
+        const cached = await this.cacheService.get<any[]>(cacheKey);
+        if (cached) return cached;
+
         const posts = await this.postRepository.find({
             where: { type: 'post' },
             order: { createdAt: 'DESC' },
@@ -93,10 +112,16 @@ export class FeedService {
             take: limit,
             relations: ['author'],
         });
-        return Promise.all(posts.map(post => this.checkAndMaskPost(post, requestingUserId)));
+        const result = await Promise.all(posts.map(post => this.checkAndMaskPost(post, requestingUserId)));
+        await this.cacheService.set(cacheKey, result, 60); // Cache for 60 seconds
+        return result;
     }
 
     async getReels(requestingUserId?: string, page: number = 1, limit: number = 10) {
+        const cacheKey = `reels:${requestingUserId || 'public'}:${page}:${limit}`;
+        const cached = await this.cacheService.get<any[]>(cacheKey);
+        if (cached) return cached;
+
         const reels = await this.postRepository.find({
             where: { type: 'reel' },
             order: { createdAt: 'DESC' },
@@ -104,22 +129,27 @@ export class FeedService {
             take: limit,
             relations: ['author'],
         });
-        return Promise.all(reels.map(reel => this.checkAndMaskPost(reel, requestingUserId)));
+        const result = await Promise.all(reels.map(reel => this.checkAndMaskPost(reel, requestingUserId)));
+        await this.cacheService.set(cacheKey, result, 60); // Cache for 60 seconds
+        return result;
     }
 
     async getStories(requestingUserId?: string) {
-        const twentyFourHoursAgo = new Date();
-        twentyFourHoursAgo.setHours(twentyFourHoursAgo.getHours() - 24);
+        const cacheKey = `stories:${requestingUserId || 'public'}`;
+        const cached = await this.cacheService.get<any[]>(cacheKey);
+        if (cached) return cached;
 
         const stories = await this.postRepository.find({
             where: {
                 type: 'story',
-                createdAt: MoreThan(twentyFourHoursAgo),
+                createdAt: MoreThan(new Date(Date.now() - 24 * 60 * 60 * 1000)), // 24 hours
             },
             order: { createdAt: 'DESC' },
             relations: ['author'],
         });
-        return Promise.all(stories.map(story => this.checkAndMaskPost(story, requestingUserId)));
+        const result = await Promise.all(stories.map(story => this.checkAndMaskPost(story, requestingUserId)));
+        await this.cacheService.set(cacheKey, result, 30); // Cache stories for 30 seconds
+        return result;
     }
 
     async getUserPosts(userId: string, requestingUserId?: string, page: number = 1, limit: number = 10) {
@@ -160,6 +190,8 @@ export class FeedService {
             );
         }
 
+        await this.invalidateFeedCache();
+
         return { success: true, likesCount: post.likesCount + 1 };
     }
 
@@ -168,6 +200,7 @@ export class FeedService {
         if (!like) throw new NotFoundException('Not liked');
         await this.likeRepository.remove(like);
         await this.postRepository.decrement({ id: postId }, 'likesCount', 1);
+        await this.invalidateFeedCache();
         return { success: true };
     }
 
@@ -197,6 +230,8 @@ export class FeedService {
                 postId,
             );
         }
+
+        await this.invalidateFeedCache();
 
         return saved;
     }
@@ -268,6 +303,8 @@ export class FeedService {
             `${buyerName} unlocked your premium post for $${post.price}`,
             postId,
         );
+
+        await this.invalidateFeedCache();
 
         return { success: true };
     }

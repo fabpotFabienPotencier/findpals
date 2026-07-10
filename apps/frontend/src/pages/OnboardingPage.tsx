@@ -76,7 +76,7 @@ export const OnboardingPage = ({ onComplete }: { onComplete: (mode: string) => v
                             </button>
                             <button
                                 onClick={() => setAuthType('register')}
-                                className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all ${authType === 'register' ? 'bg-pink-500/20 text-pink-650 dark:text-pink-400' : 'theme-text-muted hover:theme-text-primary'}`}
+                                className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all ${authType === 'register' ? 'bg-pink-500/20 text-pink-600 dark:text-pink-400' : 'theme-text-muted hover:theme-text-primary'}`}
                             >
                                 REGISTER
                             </button>

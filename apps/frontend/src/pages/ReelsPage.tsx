@@ -1,7 +1,8 @@
 import { useEffect, useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Heart, MessageCircle, Share2, MoreVertical, Music, Zap, Loader2, Send, X } from 'lucide-react';
-import { feed, users } from '../services/api';
+import { Heart, MessageCircle, Share2, MoreVertical, Music, Zap, Loader2, Send, X, Video, Plus } from 'lucide-react';
+import { feed, users, upload } from '../services/api';
+import { secureStorage } from '../utils/secureStorage';
 import { type FeedPost } from './FeedPage';
 
 const ReelPlayer = ({ 
@@ -397,6 +398,16 @@ export const ReelsPage = ({
     const [error, setError] = useState<string | null>(null);
     const [activeIndex, setActiveIndex] = useState(0);
 
+    // Reel upload states
+    const [uploadOpen, setUploadOpen] = useState(false);
+    const [reelFile, setReelFile] = useState<File | null>(null);
+    const [reelPreview, setReelPreview] = useState<string | null>(null);
+    const [caption, setCaption] = useState('');
+    const [isPremium, setIsPremium] = useState(false);
+    const [price, setPrice] = useState('2.99');
+    const [uploading, setUploading] = useState(false);
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
     const scrollContainerRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -424,6 +435,59 @@ export const ReelsPage = ({
         }
     };
 
+    const handleCreateReel = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!reelFile || uploading) return;
+        setUploading(true);
+        setError(null);
+
+        try {
+            const videoUrl = await upload.uploadFile(reelFile, 'reels');
+
+            const token = await secureStorage.getItem('auth_token');
+            let authorId: string | null = null;
+            if (token) {
+                const [, payloadBase64] = token.split('.');
+                const payloadJson = atob(payloadBase64.replace(/-/g, '+').replace(/_/g, '/'));
+                const payload = JSON.parse(payloadJson);
+                authorId = payload.sub;
+            }
+            if (!authorId) throw new Error('Not authenticated');
+
+            const res = await feed.create(
+                authorId,
+                caption.trim(),
+                'reel',
+                videoUrl,
+                isPremium,
+                isPremium ? Number(price) : 0
+            );
+
+            const newReel: FeedPost = {
+                ...res.data,
+                author: {
+                    id: authorId,
+                    username: userProfile?.username || 'anonymous',
+                    displayName: userProfile?.displayName,
+                    avatarUrl: userProfile?.avatarUrl,
+                    isCreator: userProfile?.isCreator,
+                }
+            };
+            setReels(prev => [newReel, ...prev]);
+
+            setUploadOpen(false);
+            setReelFile(null);
+            setReelPreview(null);
+            setCaption('');
+            setIsPremium(false);
+            setPrice('2.99');
+        } catch (err: any) {
+            setError(err.response?.data?.message || err.message || 'Failed to create reel');
+        } finally {
+            setUploading(false);
+        }
+    };
+
     if (loading) {
         return (
             <div className="flex items-center justify-center h-full pt-20">
@@ -432,44 +496,200 @@ export const ReelsPage = ({
         );
     }
 
-    if (error) {
-        return (
-            <div className="flex items-center justify-center h-full p-4 text-center">
-                <div className="bg-red-500/10 border border-red-500/30 text-red-500 dark:text-red-400 p-4 rounded-xl text-sm">
-                    {error}
-                </div>
-            </div>
-        );
-    }
-
-    if (reels.length === 0) {
-        return (
-            <div className="flex flex-col items-center justify-center h-full p-4 text-center">
-                <Zap size={48} className="theme-text-muted mb-4 opacity-50" />
-                <p className="theme-text-secondary font-mono text-sm uppercase tracking-widest">No Reels Found</p>
-                <p className="theme-text-muted text-xs mt-2">Be the first to create one!</p>
-            </div>
-        );
-    }
-
     return (
-        <div 
-            ref={scrollContainerRef}
-            className="w-full h-full overflow-y-scroll snap-y snap-mandatory bg-black hide-scrollbar"
-            onScroll={handleScroll}
-            style={{ height: 'calc(100vh - 64px)' }} // Subtract bottom nav height on mobile
-        >
-            {reels.map((reel, index) => (
-                <div key={reel.id} className="w-full h-full snap-start relative">
-                    <ReelPlayer 
-                        reel={reel} 
-                        isActive={index === activeIndex} 
-                        userProfile={userProfile}
-                        setCurrentPage={setCurrentPage || (() => {})}
-                        setViewUserId={setViewUserId || (() => {})}
-                    />
+        <div className="w-full h-full relative bg-black">
+            {/* Create Reel Button */}
+            <div className="absolute top-4 right-4 z-30">
+                <button
+                    onClick={() => setUploadOpen(true)}
+                    className="p-3 bg-white/10 hover:bg-white/20 border border-white/20 rounded-full text-white backdrop-blur-md transition-all shadow-lg flex items-center gap-1.5"
+                >
+                    <Plus size={20} />
+                    <span className="text-xs font-mono uppercase tracking-wider font-bold">Create</span>
+                </button>
+            </div>
+
+            {reels.length === 0 ? (
+                <div className="flex flex-col items-center justify-center h-full p-4 text-center">
+                    <Zap size={48} className="theme-text-muted mb-4 opacity-50" />
+                    <p className="theme-text-secondary font-mono text-sm uppercase tracking-widest">No Reels Found</p>
+                    <p className="theme-text-muted text-xs mt-2">Be the first to create one!</p>
                 </div>
-            ))}
+            ) : (
+                <div 
+                    ref={scrollContainerRef}
+                    className="w-full h-full overflow-y-scroll snap-y snap-mandatory bg-black hide-scrollbar"
+                    onScroll={handleScroll}
+                    style={{ height: 'calc(100vh - 64px)' }} // Subtract bottom nav height on mobile
+                >
+                    {reels.map((reel, index) => (
+                        <div key={reel.id} className="w-full h-full snap-start relative">
+                            <ReelPlayer 
+                                reel={reel} 
+                                isActive={index === activeIndex} 
+                                userProfile={userProfile}
+                                setCurrentPage={setCurrentPage || (() => {})}
+                                setViewUserId={setViewUserId || (() => {})}
+                            />
+                        </div>
+                    ))}
+                </div>
+            )}
+
+            {/* Upload Reel Modal */}
+            <AnimatePresence>
+                {uploadOpen && (
+                    <motion.div 
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+                        onClick={() => !uploading && setUploadOpen(false)}
+                    >
+                        <motion.div 
+                            initial={{ scale: 0.95, y: 20 }}
+                            animate={{ scale: 1, y: 0 }}
+                            exit={{ scale: 0.95, y: 20 }}
+                            className="w-full max-w-md theme-card border theme-border rounded-3xl p-6 relative overflow-hidden"
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            <div className="flex justify-between items-center mb-6">
+                                <h3 className="text-lg font-bold theme-text-primary flex items-center gap-2">
+                                    <Video className="text-pink-500" size={20} />
+                                    <span>Create Reel</span>
+                                </h3>
+                                <button 
+                                    onClick={() => !uploading && setUploadOpen(false)}
+                                    className="p-1 rounded-full hover:theme-bg-secondary theme-text-muted hover:theme-text-primary transition-colors"
+                                >
+                                    <X size={20} />
+                                </button>
+                            </div>
+
+                            <form onSubmit={handleCreateReel} className="space-y-6">
+                                {/* Video Upload Slot */}
+                                <div 
+                                    onClick={() => !uploading && fileInputRef.current?.click()}
+                                    className="border-2 border-dashed theme-border rounded-2xl p-8 text-center cursor-pointer hover:border-pink-500/50 transition-colors relative aspect-video flex flex-col items-center justify-center overflow-hidden theme-bg-secondary"
+                                >
+                                    {reelPreview ? (
+                                        <video 
+                                            src={reelPreview} 
+                                            className="absolute inset-0 w-full h-full object-cover" 
+                                            muted 
+                                            loop 
+                                            autoPlay 
+                                        />
+                                    ) : (
+                                        <>
+                                            <Video className="text-slate-500 mb-3" size={36} />
+                                            <span className="text-xs font-mono uppercase tracking-wider theme-text-muted">Select Video File</span>
+                                            <span className="text-[10px] theme-text-muted mt-1 font-mono">MP4, WebM (max 50MB)</span>
+                                        </>
+                                    )}
+                                    <input 
+                                        type="file"
+                                        ref={fileInputRef}
+                                        className="hidden"
+                                        accept="video/*"
+                                        onChange={(e) => {
+                                            const file = e.target.files?.[0];
+                                            if (file) {
+                                                setReelFile(file);
+                                                setReelPreview(URL.createObjectURL(file));
+                                            }
+                                        }}
+                                    />
+                                </div>
+
+                                {/* Caption */}
+                                <div className="space-y-1.5">
+                                    <label className="text-xs font-mono uppercase tracking-wider theme-text-muted">Caption</label>
+                                    <textarea
+                                        value={caption}
+                                        onChange={(e) => setCaption(e.target.value)}
+                                        placeholder="Describe your Reel..."
+                                        rows={3}
+                                        className="w-full theme-input rounded-xl px-4 py-2.5 text-sm resize-none"
+                                        required
+                                    />
+                                </div>
+
+                                {/* Premium Settings */}
+                                {userProfile?.isCreator && (
+                                    <div className="border theme-border rounded-2xl p-4 space-y-4">
+                                        <label className="flex items-center justify-between cursor-pointer">
+                                            <div className="flex flex-col">
+                                                <span className="text-xs font-bold theme-text-primary">Premium Locked Content</span>
+                                                <span className="text-[10px] theme-text-muted">Users must pay to view this Reel</span>
+                                            </div>
+                                            <input 
+                                                type="checkbox"
+                                                checked={isPremium}
+                                                onChange={(e) => setIsPremium(e.target.checked)}
+                                                className="rounded border-white/10 bg-transparent text-pink-500 focus:ring-0 focus:ring-offset-0 w-4 h-4"
+                                            />
+                                        </label>
+
+                                        {isPremium && (
+                                            <div className="flex gap-3 items-center">
+                                                <span className="text-xs font-mono theme-text-muted">Unlock Price:</span>
+                                                <div className="flex-1 flex gap-2">
+                                                    <span className="theme-bg-surface border theme-border rounded-xl px-3 py-1.5 text-sm theme-text-muted font-mono flex items-center">$</span>
+                                                    <input 
+                                                        type="number"
+                                                        value={price}
+                                                        onChange={(e) => setPrice(e.target.value)}
+                                                        className="w-full theme-input rounded-xl px-3 py-1.5 text-sm font-mono"
+                                                        placeholder="2.99"
+                                                        step="0.01"
+                                                        min="0.10"
+                                                        required
+                                                    />
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+
+                                {/* Error Alert */}
+                                {error && (
+                                    <p className="text-xs font-mono text-red-400 bg-red-500/10 border border-red-500/20 p-3 rounded-xl">
+                                        {error}
+                                    </p>
+                                )}
+
+                                {/* Action Buttons */}
+                                <div className="flex gap-4 justify-end">
+                                    <button
+                                        type="button"
+                                        disabled={uploading}
+                                        onClick={() => setUploadOpen(false)}
+                                        className="px-5 py-2.5 theme-button-secondary rounded-xl font-bold text-xs uppercase tracking-wider transition-all disabled:opacity-50"
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                        type="submit"
+                                        disabled={uploading || !reelFile}
+                                        className="px-5 py-2.5 theme-button-accent rounded-xl font-bold text-xs uppercase tracking-wider transition-all disabled:opacity-50 flex items-center gap-1.5"
+                                    >
+                                        {uploading ? (
+                                            <>
+                                                <Loader2 size={14} className="animate-spin" />
+                                                <span>Publishing...</span>
+                                            </>
+                                        ) : (
+                                            <span>Publish Reel</span>
+                                        )}
+                                    </button>
+                                </div>
+                            </form>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
             <style>{`
                 .hide-scrollbar::-webkit-scrollbar {
                     display: none;

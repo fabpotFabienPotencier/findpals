@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { live } from '../services/api';
+import { secureStorage } from '../utils/secureStorage';
 
 const getSocketUrl = (apiUrl: string) => {
     try {
@@ -35,7 +36,11 @@ export const LiveStreamPage = () => {
     useEffect(() => {
         if (!roomId) return;
 
-        const s = io(`${SOCKET_URL}/live`, { transports: ['websocket'] });
+        const token = secureStorage.getItem('auth_token');
+        const s = io(`${SOCKET_URL}/live`, { 
+            transports: ['websocket'],
+            auth: { token }
+        });
         setSocket(s);
 
         let iceServers: any[] = [{ urls: 'stun:stun.l.google.com:19302' }];
@@ -63,7 +68,7 @@ export const LiveStreamPage = () => {
         };
 
         s.on('connect', async () => {
-            s.emit('joinRoom', { roomId, userId: s.id });
+            s.emit('joinRoom', { roomId });
 
             const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
             if (localVideoRef.current) {
