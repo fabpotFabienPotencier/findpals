@@ -220,11 +220,11 @@ export const MessagingPage = ({
     const activeChatDetail = chatsList.find(c => c.id === currentChatId);
 
     return (
-        <div className="flex h-[calc(100vh-100px)] border border-white/5 rounded-3xl overflow-hidden bg-white/5 mt-4">
+        <div className="flex h-[calc(100vh-100px)] theme-card rounded-3xl overflow-hidden mt-4">
             {/* Chats List Sidebar */}
-            <div className="w-80 border-r border-white/5 flex flex-col bg-black/40">
+            <div className="w-80 border-r theme-border flex flex-col theme-bg-secondary">
                 {/* Search / DM creation area */}
-                <div className="p-4 border-b border-white/5 relative">
+                <div className="p-4 border-b theme-border relative">
                     <div className="relative">
                         <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
                         <input
@@ -232,20 +232,20 @@ export const MessagingPage = ({
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             placeholder="Start a secure DM..."
-                            className="w-full bg-slate-900 border-none rounded-xl text-sm pl-9 pr-4 py-2 focus:ring-1 ring-blue-500/50 text-white placeholder:text-slate-600"
+                            className="w-full theme-input rounded-xl text-sm pl-9 pr-4 py-2 placeholder:text-slate-600"
                         />
                     </div>
 
                     {/* Search results dropdown popup */}
                     {searchQuery.trim().length >= 2 && (
-                        <div className="absolute left-4 right-4 mt-2 bg-[#090a0f] border border-white/10 rounded-2xl p-2 shadow-2xl z-30 max-h-60 overflow-y-auto">
+                        <div className="absolute left-4 right-4 mt-2 theme-card rounded-2xl p-2 shadow-2xl z-30 max-h-60 overflow-y-auto">
                             {searching && (
                                 <div className="flex justify-center p-3">
-                                    <Loader2 className="animate-spin text-blue-500" size={16} />
+                                    <Loader2 className="animate-spin theme-text-accent" size={16} />
                                 </div>
                             )}
                             {!searching && searchResults.length === 0 && (
-                                <div className="text-center py-4 text-slate-500 font-mono text-[10px] uppercase">
+                                <div className="text-center py-4 theme-text-muted font-mono text-[10px] uppercase">
                                     No users found
                                 </div>
                             )}
@@ -253,9 +253,9 @@ export const MessagingPage = ({
                                 <div
                                     key={user.id}
                                     onClick={() => handleStartDM(user)}
-                                    className="flex items-center gap-3 p-2 hover:bg-white/5 rounded-xl cursor-pointer transition-colors"
+                                    className="flex items-center gap-3 p-2 hover:bg-black/5 dark:hover:bg-white/5 rounded-xl cursor-pointer transition-colors"
                                 >
-                                    <div className="w-8 h-8 rounded-full overflow-hidden bg-slate-800 border border-white/5">
+                                    <div className="w-8 h-8 rounded-full overflow-hidden theme-bg-surface border theme-border">
                                         {user.avatarUrl ? (
                                             <img src={user.avatarUrl} alt="avatar" className="w-full h-full object-cover" />
                                         ) : (
@@ -265,10 +265,10 @@ export const MessagingPage = ({
                                         )}
                                     </div>
                                     <div className="flex-1 overflow-hidden">
-                                        <div className="font-bold text-white text-xs truncate">
+                                        <div className="font-bold text-xs truncate">
                                             {user.displayName || user.username}
                                         </div>
-                                        <div className="text-[10px] text-slate-500 font-mono">@{user.username}</div>
+                                        <div className="text-[10px] theme-text-muted font-mono">@{user.username}</div>
                                     </div>
                                 </div>
                             ))}
@@ -290,20 +290,20 @@ export const MessagingPage = ({
                                     }
                                 }
                             }}
-                            className={`p-4 flex gap-3 cursor-pointer hover:bg-white/5 transition-all ${chat.id === currentChatId ? 'bg-blue-500/5 border-l-2 border-blue-400' : ''}`}
+                            className={`p-4 flex gap-3 cursor-pointer hover:bg-black/5 dark:hover:bg-white/5 transition-all ${chat.id === currentChatId ? 'bg-blue-500/5 dark:bg-blue-500/10 border-l-2 border-blue-500' : ''}`}
                         >
-                            <div className="w-12 h-12 rounded-full bg-slate-800 border border-white/5 flex items-center justify-center font-bold text-white flex-shrink-0">
+                            <div className="w-12 h-12 rounded-full theme-bg-surface border theme-border flex items-center justify-center font-bold theme-text-primary flex-shrink-0">
                                 {chat.isDM ? (
                                     chat.name[0]?.toUpperCase()
                                 ) : (
-                                    <User size={20} className="text-blue-500" />
+                                    <User size={20} className="theme-text-accent" />
                                 )}
                             </div>
                             <div className="flex-1 overflow-hidden">
                                 <div className="flex justify-between items-center mb-1">
-                                    <span className="font-bold text-sm text-white truncate">{chat.name}</span>
+                                    <span className="font-bold text-sm truncate">{chat.name}</span>
                                 </div>
-                                <p className="text-xs text-slate-500 truncate">{chat.lastMessage}</p>
+                                <p className="text-xs theme-text-muted truncate">{chat.lastMessage}</p>
                             </div>
                         </div>
                     ))}
@@ -311,35 +311,35 @@ export const MessagingPage = ({
             </div>
 
             {/* Chat Conversation Area */}
-            <div className="flex-1 flex flex-col bg-slate-950/30">
+            <div className="flex-1 flex flex-col bg-slate-950/5 dark:bg-slate-950/30">
                 {/* Chat Header */}
-                <div className="px-6 py-4 border-b border-white/5 flex justify-between items-center bg-[#0d0e26]/50">
+                <div className="px-6 py-4 border-b theme-border flex justify-between items-center theme-bg-secondary">
                     <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-slate-800 border border-white/5 flex items-center justify-center font-bold text-white">
-                            {activeChatDetail?.isDM ? activeChatDetail.name[0]?.toUpperCase() : <User size={18} className="text-blue-500" />}
+                        <div className="w-10 h-10 rounded-full theme-bg-surface border theme-border flex items-center justify-center font-bold">
+                            {activeChatDetail?.isDM ? activeChatDetail.name[0]?.toUpperCase() : <User size={18} className="theme-text-accent" />}
                         </div>
                         <div>
-                            <div className="font-bold text-sm text-white">{activeChatDetail?.name || 'Secure Lobby'}</div>
+                            <div className="font-bold text-sm">{activeChatDetail?.name || 'Secure Lobby'}</div>
                             <div className="text-[10px] text-green-500 flex items-center gap-1 font-mono uppercase tracking-widest">
                                 <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" /> Secure Channel Active
                             </div>
                         </div>
                     </div>
-                    <div className="flex items-center gap-4 text-slate-400">
-                        <button className="hover:text-blue-400 transition-colors"><Phone size={20} /></button>
-                        <button className="hover:text-blue-400 transition-colors"><Video size={20} /></button>
-                        <button className="hover:text-slate-200 transition-colors"><Info size={20} /></button>
+                    <div className="flex items-center gap-4 theme-text-muted">
+                        <button className="hover:theme-text-primary transition-colors"><Phone size={20} /></button>
+                        <button className="hover:theme-text-primary transition-colors"><Video size={20} /></button>
+                        <button className="hover:theme-text-primary transition-colors"><Info size={20} /></button>
                     </div>
                 </div>
 
                 {/* Message List */}
                 <div className="flex-1 p-6 overflow-y-auto custom-scrollbar space-y-4">
                     {loading ? (
-                        <div className="flex items-center justify-center h-full text-slate-500 text-xs gap-2 font-mono uppercase tracking-[0.2em]">
+                        <div className="flex items-center justify-center h-full theme-text-muted text-xs gap-2 font-mono uppercase tracking-[0.2em]">
                             <Loader2 className="animate-spin" size={18} /> Establishing secure link...
                         </div>
                     ) : messages.length === 0 ? (
-                        <div className="flex flex-col items-center justify-center h-full text-slate-600 text-xs font-mono uppercase tracking-widest gap-2">
+                        <div className="flex flex-col items-center justify-center h-full theme-text-muted text-xs font-mono uppercase tracking-widest gap-2">
                             <span>No messages in this chat.</span>
                             <span className="text-[10px] opacity-60">Messages are end-to-end encrypted.</span>
                         </div>
@@ -350,14 +350,14 @@ export const MessagingPage = ({
                             return (
                                 <div key={msg.id} className={`flex flex-col ${isMine ? 'items-end ml-auto' : 'items-start'} max-w-[70%]`}>
                                     {!isMine && (
-                                        <span className="text-[10px] font-mono text-slate-500 mb-1 ml-1">
+                                        <span className="text-[10px] font-mono theme-text-muted mb-1 ml-1">
                                             {senderName}
                                         </span>
                                     )}
-                                    <div className={`${isMine ? 'bg-blue-500 text-black rounded-2xl rounded-tr-none shadow-[0_0_15px_rgba(0,85,255,0.3)] font-medium' : 'bg-slate-800 text-slate-200 rounded-2xl rounded-tl-none'} p-4 text-sm`}>
+                                    <div className={`${isMine ? 'theme-button-accent font-medium rounded-2xl rounded-tr-none shadow-sm' : 'theme-bg-surface theme-text-primary border theme-border rounded-2xl rounded-tl-none'} p-4 text-sm`}>
                                         {msg.content}
                                     </div>
-                                    <span className="text-[9px] text-slate-500 mt-1 font-mono uppercase tracking-[0.2em]">
+                                    <span className="text-[9px] theme-text-muted mt-1 font-mono uppercase tracking-[0.2em]">
                                         {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                     </span>
                                 </div>
@@ -366,20 +366,20 @@ export const MessagingPage = ({
                     )}
                     <div ref={messagesEndRef} />
                     {typingUser && (
-                        <div className="text-[10px] text-slate-500 font-mono uppercase tracking-[0.2em] animate-pulse">
+                        <div className="text-[10px] theme-text-muted font-mono uppercase tracking-[0.2em] animate-pulse">
                             {typingUser} is typing...
                         </div>
                     )}
                 </div>
 
                 {/* Chat Input Input bar */}
-                <div className="p-4 border-t border-white/5 bg-[#0d0e26]/50">
-                    <div className="bg-slate-900/50 border border-white/5 focus-within:border-blue-500/50 rounded-2xl flex items-center px-4 py-2 transition-all">
-                        <button className="text-slate-500 hover:text-slate-300 p-2"><Paperclip size={20} /></button>
+                <div className="p-4 border-t theme-border theme-bg-secondary">
+                    <div className="theme-bg-surface border theme-border rounded-2xl flex items-center px-4 py-2 transition-all">
+                        <button className="text-slate-500 hover:text-slate-350 p-2"><Paperclip size={20} /></button>
                         <input
                             type="text"
                             placeholder="Type an encrypted message..."
-                            className="flex-1 bg-transparent border-none focus:ring-0 text-sm px-4 text-white placeholder:text-slate-600 focus:outline-none"
+                            className="flex-1 bg-transparent border-none text-sm px-4 focus:outline-none focus:ring-0"
                             value={input}
                             onChange={e => setInput(e.target.value)}
                             onKeyDown={e => {
@@ -391,11 +391,11 @@ export const MessagingPage = ({
                                 }
                             }}
                         />
-                        <button className="text-slate-500 hover:text-slate-300 p-2"><Smile size={20} /></button>
+                        <button className="text-slate-500 hover:text-slate-355 p-2"><Smile size={20} /></button>
                         <button
                             onClick={handleSend}
                             disabled={!input.trim()}
-                            className="bg-blue-500 text-black p-2.5 rounded-xl hover:bg-blue-400 transition-all ml-2 shadow-[0_0_10px_rgba(0,85,255,0.5)] disabled:opacity-60"
+                            className="theme-button-accent p-2.5 rounded-xl transition-all ml-2 shadow-sm disabled:opacity-60"
                         >
                             <Send size={18} />
                         </button>

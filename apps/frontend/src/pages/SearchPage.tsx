@@ -44,8 +44,8 @@ export const SearchPage = ({ setCurrentPage, setViewUserId }: { setCurrentPage: 
 
     return (
         <div className="max-w-2xl mx-auto p-4 md:p-8 pb-24">
-            <h1 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
-                <Search className="text-blue-500" /> Discover
+            <h1 className="text-2xl font-bold mb-6 flex items-center gap-2">
+                <Search className="theme-text-accent" /> Discover
             </h1>
 
             <div className="relative mb-8">
@@ -55,13 +55,13 @@ export const SearchPage = ({ setCurrentPage, setViewUserId }: { setCurrentPage: 
                     value={query}
                     onChange={(e) => handleSearch(e.target.value)}
                     placeholder="Search people by username or name..."
-                    className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white placeholder:text-slate-600 focus:outline-none focus:border-blue-500/50 transition-colors text-sm"
+                    className="w-full theme-input rounded-2xl py-4 pl-12 pr-4 placeholder:text-slate-600 transition-colors text-sm"
                 />
             </div>
 
             {loading && (
                 <div className="flex justify-center py-10">
-                    <Loader2 className="animate-spin text-blue-500" size={24} />
+                    <Loader2 className="animate-spin theme-text-accent" size={24} />
                 </div>
             )}
 
@@ -73,9 +73,9 @@ export const SearchPage = ({ setCurrentPage, setViewUserId }: { setCurrentPage: 
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
                             onClick={() => handleViewProfile(user.id)}
-                            className="flex items-center gap-4 p-4 bg-white/5 border border-white/5 rounded-2xl cursor-pointer hover:bg-white/10 hover:border-white/10 transition-all"
+                            className="flex items-center gap-4 p-4 theme-card rounded-2xl cursor-pointer hover:bg-black/5 dark:hover:bg-white/5 transition-all"
                         >
-                            <div className="w-12 h-12 rounded-full bg-slate-800 overflow-hidden flex-shrink-0 border border-white/10">
+                            <div className="w-12 h-12 rounded-full bg-slate-250 dark:bg-slate-800 overflow-hidden flex-shrink-0 border theme-border">
                                 {user.avatarUrl ? (
                                     <img src={user.avatarUrl} alt="avatar" className="w-full h-full object-cover" />
                                 ) : (
@@ -85,7 +85,7 @@ export const SearchPage = ({ setCurrentPage, setViewUserId }: { setCurrentPage: 
                                 )}
                             </div>
                             <div className="flex-1">
-                                <div className="font-bold text-white flex items-center gap-2">
+                                <div className="font-bold flex items-center gap-2">
                                     {user.displayName || user.username}
                                     {user.isCreator && (
                                         <div className="w-4 h-4 bg-blue-500 rounded-full flex items-center justify-center text-[10px] text-white">
@@ -93,16 +93,16 @@ export const SearchPage = ({ setCurrentPage, setViewUserId }: { setCurrentPage: 
                                         </div>
                                     )}
                                 </div>
-                                <div className="text-xs text-slate-500 font-mono">@{user.username}</div>
+                                <div className="text-xs theme-text-secondary font-mono">@{user.username}</div>
                             </div>
-                            <div className="text-xs text-slate-600 font-mono">LVL {user.level || 1}</div>
+                            <div className="text-xs theme-text-muted font-mono">LVL {user.level || 1}</div>
                         </motion.div>
                     ))}
                 </div>
             )}
 
             {!loading && searched && results.length === 0 && query.length >= 2 && (
-                <div className="text-center py-20 text-slate-500 border border-dashed border-white/10 rounded-3xl">
+                <div className="text-center py-20 theme-text-secondary border border-dashed theme-border rounded-3xl">
                     <UserIcon size={48} className="mx-auto mb-4 opacity-50" />
                     <p className="font-mono text-sm uppercase tracking-widest">No users found</p>
                     <p className="text-xs mt-2 opacity-60">Try a different search term.</p>
@@ -110,7 +110,7 @@ export const SearchPage = ({ setCurrentPage, setViewUserId }: { setCurrentPage: 
             )}
 
             {!searched && (
-                <div className="text-center py-20 text-slate-600">
+                <div className="text-center py-20 theme-text-muted">
                     <Search size={48} className="mx-auto mb-4 opacity-30" />
                     <p className="font-mono text-xs uppercase tracking-widest">Find your people</p>
                     <p className="text-xs mt-2 opacity-60">Type at least 2 characters to search.</p>

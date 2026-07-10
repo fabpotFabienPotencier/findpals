@@ -135,7 +135,7 @@ export const ProfilePage = ({
     return (
         <div className="pb-24">
             {/* Header & Cover Area */}
-            <div className="relative h-48 md:h-64 overflow-hidden border-b border-white/5 bg-gradient-to-tr from-blue-900 to-black">
+            <div className="relative h-48 md:h-64 overflow-hidden border-b theme-border bg-gradient-to-tr from-blue-950/40 to-slate-900/10">
                 {profile.coverUrl ? (
                     <img 
                         src={profile.coverUrl} 
@@ -150,14 +150,14 @@ export const ProfilePage = ({
                 <div className="absolute top-4 right-4 flex gap-3">
                     <button 
                         onClick={handleShare}
-                        className="w-10 h-10 rounded-full bg-black/50 backdrop-blur border border-white/10 flex items-center justify-center text-white hover:bg-white/10 transition-colors"
+                        className="w-10 h-10 rounded-full bg-black/40 dark:bg-black/60 backdrop-blur border theme-border flex items-center justify-center text-white hover:bg-white/10 transition-colors"
                     >
                         <Share size={18} />
                     </button>
                     {isOwnProfile && (
                         <button 
                             onClick={() => setCurrentPage?.('settings')}
-                            className="w-10 h-10 rounded-full bg-black/50 backdrop-blur border border-white/10 flex items-center justify-center text-white hover:bg-white/10 transition-colors"
+                            className="w-10 h-10 rounded-full bg-black/40 dark:bg-black/60 backdrop-blur border theme-border flex items-center justify-center text-white hover:bg-white/10 transition-colors"
                         >
                             <Settings size={18} />
                         </button>
@@ -169,7 +169,7 @@ export const ProfilePage = ({
             <div className="px-6 -mt-16 relative z-10">
                 <div className="flex justify-between items-end mb-4">
                     <div className="relative">
-                        <div className="w-28 h-28 md:w-32 md:h-32 rounded-full border-4 border-black bg-slate-900 overflow-hidden shadow-[0_0_20px_rgba(0,85,255,0.4)] ring-2 ring-blue-500">
+                        <div className="w-28 h-28 md:w-32 md:h-32 rounded-full border-4 border-white dark:border-black theme-bg-surface overflow-hidden shadow-lg ring-2 ring-blue-500">
                             {profile.avatarUrl ? (
                                 <img src={profile.avatarUrl} alt="avatar" className="w-full h-full object-cover" />
                             ) : (
@@ -188,7 +188,7 @@ export const ProfilePage = ({
                     {isOwnProfile ? (
                         <button 
                             onClick={() => setCurrentPage?.('settings')}
-                            className="px-6 py-2 rounded-full border border-white/20 text-white text-sm font-bold flex items-center gap-2 hover:bg-white/5 transition-colors bg-black/50 backdrop-blur"
+                            className="px-6 py-2 rounded-full border border-slate-300 dark:border-white/20 text-slate-700 dark:text-white text-sm font-bold flex items-center gap-2 hover:bg-black/5 dark:hover:bg-white/5 transition-colors bg-white/50 dark:bg-black/50 backdrop-blur"
                         >
                             <Edit size={14} /> Edit
                         </button>
@@ -196,17 +196,17 @@ export const ProfilePage = ({
                         <div className="flex gap-2">
                             <button 
                                 onClick={handleMessageClick}
-                                className="px-5 py-2 rounded-full bg-white/5 border border-white/10 text-white text-sm font-bold flex items-center gap-2 hover:bg-white/10 transition-colors"
+                                className="px-5 py-2 rounded-full theme-button-secondary text-sm font-bold flex items-center gap-2 transition-colors"
                             >
                                 <MessageSquare size={14} /> Message
                             </button>
                             <button 
                                 onClick={handleFollowToggle}
                                 disabled={checkingFollow}
-                                className={`px-6 py-2 rounded-full text-sm font-bold flex items-center gap-2 transition-all shadow-[0_0_10px_rgba(0,85,255,0.3)] ${
+                                className={`px-6 py-2 rounded-full text-sm font-bold flex items-center gap-2 transition-all shadow-md ${
                                     isFollowing 
-                                        ? 'bg-white/10 text-white border border-white/20 hover:bg-white/20' 
-                                        : 'bg-blue-600 text-white hover:bg-blue-500'
+                                        ? 'bg-black/5 dark:bg-white/10 border theme-border hover:bg-black/10 dark:hover:bg-white/20' 
+                                        : 'theme-button-accent'
                                 }`}
                             >
                                 {isFollowing ? 'Following' : 'Follow'}
@@ -216,7 +216,7 @@ export const ProfilePage = ({
                 </div>
 
                 <div>
-                    <h1 className="text-2xl font-bold text-white flex items-center gap-2">
+                    <h1 className="text-2xl font-bold flex items-center gap-2">
                         {displayName}
                         {profile.isCreator && (
                             <div className="w-4 h-4 bg-blue-500 rounded-full flex items-center justify-center text-[10px] text-white">
@@ -235,7 +235,7 @@ export const ProfilePage = ({
                 </div>
 
                 {bio ? (
-                    <div className="mt-4 text-sm text-slate-300 leading-relaxed whitespace-pre-wrap">
+                    <div className="mt-4 text-sm theme-text-secondary leading-relaxed whitespace-pre-wrap">
                         {bio}
                     </div>
                 ) : (
@@ -252,18 +252,18 @@ export const ProfilePage = ({
                 </div>
 
                 {/* Stats */}
-                <div className="grid grid-cols-3 gap-4 mt-8 py-6 border-y border-white/10 text-center">
+                <div className="grid grid-cols-3 gap-4 mt-8 py-6 border-y theme-border text-center">
                     <div>
-                        <div className="text-lg md:text-xl font-bold text-white">{profile.postsCount || 0}</div>
-                        <div className="text-[10px] uppercase tracking-wider text-slate-500 mt-1">Posts</div>
+                        <div className="text-lg md:text-xl font-bold">{profile.postsCount || 0}</div>
+                        <div className="text-[10px] uppercase tracking-wider theme-text-muted mt-1">Posts</div>
                     </div>
                     <div>
-                        <div className="text-lg md:text-xl font-bold text-white">{(profile.followersCount || 0).toLocaleString()}</div>
-                        <div className="text-[10px] uppercase tracking-wider text-slate-500 mt-1">Followers</div>
+                        <div className="text-lg md:text-xl font-bold">{(profile.followersCount || 0).toLocaleString()}</div>
+                        <div className="text-[10px] uppercase tracking-wider theme-text-muted mt-1">Followers</div>
                     </div>
                     <div>
-                        <div className="text-lg md:text-xl font-bold text-white">{(profile.followingCount || 0).toLocaleString()}</div>
-                        <div className="text-[10px] uppercase tracking-wider text-slate-500 mt-1">Following</div>
+                        <div className="text-lg md:text-xl font-bold">{(profile.followingCount || 0).toLocaleString()}</div>
+                        <div className="text-[10px] uppercase tracking-wider theme-text-muted mt-1">Following</div>
                     </div>
                 </div>
 
@@ -283,13 +283,13 @@ export const ProfilePage = ({
                     <div className="grid grid-cols-2 gap-4 mt-6">
                         <button 
                             onClick={() => setCurrentPage?.('settings')}
-                            className="py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-2xl shadow-[0_0_15px_rgba(0,85,255,0.3)] transition-all text-sm"
+                            className="py-3 theme-button-accent font-bold rounded-2xl shadow-md transition-all text-sm"
                         >
                             Edit Profile
                         </button>
                         <button 
                             onClick={handleShare}
-                            className="py-3 bg-white/5 border border-white/10 hover:bg-white/10 text-white font-bold rounded-2xl transition-all flex items-center justify-center gap-2 text-sm"
+                            className="py-3 theme-button-secondary font-bold rounded-2xl transition-all flex items-center justify-center gap-2 text-sm"
                         >
                             <Share size={16} /> Share Profile
                         </button>
@@ -297,7 +297,7 @@ export const ProfilePage = ({
                 )}
 
                 {/* Content Tabs */}
-                <div className="flex border-b border-white/10 mt-6">
+                <div className="flex border-b theme-border mt-6">
                     {[
                         { id: 'posts', icon: Grid, label: 'Posts' },
                         { id: 'reels', icon: PlaySquare, label: 'Reels' },
@@ -310,8 +310,8 @@ export const ProfilePage = ({
                             onClick={() => setActiveTab(tab.id as any)}
                             className={`flex-1 flex flex-col items-center gap-2 py-4 border-b-2 transition-colors ${
                                 activeTab === tab.id 
-                                    ? 'border-blue-500 text-blue-500' 
-                                    : 'border-transparent text-slate-500 hover:text-slate-300'
+                                    ? 'theme-border-accent theme-text-accent' 
+                                    : 'border-transparent theme-text-muted hover:theme-text-primary'
                             }`}
                         >
                             <tab.icon size={20} />
@@ -326,7 +326,7 @@ export const ProfilePage = ({
                         <>
                             {loadingPosts ? (
                                 <div className="flex justify-center py-10">
-                                    <Loader2 className="animate-spin text-blue-500" size={24} />
+                                    <Loader2 className="animate-spin theme-text-accent" size={24} />
                                 </div>
                             ) : posts.length > 0 ? (
                                 <div className="space-y-6">
@@ -341,15 +341,15 @@ export const ProfilePage = ({
                                     ))}
                                 </div>
                             ) : (
-                                <div className="text-center py-20 text-slate-500 font-mono text-sm border border-dashed border-white/10 rounded-3xl">
+                                <div className="text-center py-20 theme-text-secondary font-mono text-sm border border-dashed theme-border rounded-3xl">
                                     No posts yet.
                                 </div>
                             )}
                         </>
                     )}
                     {activeTab !== 'posts' && (
-                        <div className="text-center py-20 text-slate-500 font-mono text-sm border border-dashed border-white/10 rounded-3xl flex flex-col items-center gap-4">
-                            <Lock size={32} className="text-slate-700" />
+                        <div className="text-center py-20 theme-text-secondary font-mono text-sm border border-dashed theme-border rounded-3xl flex flex-col items-center gap-4">
+                            <Lock size={32} className="theme-text-muted" />
                             This content is currently locked or unavailable.
                         </div>
                     )}

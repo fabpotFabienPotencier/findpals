@@ -131,24 +131,24 @@ export const LiveStreamPage = () => {
     };
 
     return (
-        <div className="h-screen bg-black text-white p-4 space-y-6">
-            <h1 className="text-3xl font-bold text-blue-400 mb-2">Live Control Room</h1>
+        <div className="min-h-screen p-4 md:p-8 space-y-6 pb-24">
+            <h1 className="text-3xl font-bold mb-2">Live Control Room</h1>
 
             {/* Go Live Configuration */}
             {!roomId && (
-                <div className="bg-white/5 border border-white/10 rounded-3xl p-4 flex flex-col gap-3 max-w-xl">
+                <div className="theme-card rounded-3xl p-6 flex flex-col gap-4 max-w-xl">
                     <div className="flex gap-3">
                         <input
                             type="text"
                             value={title}
                             onChange={(e) => setTitle(e.target.value)}
-                            className="flex-1 bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-sm"
+                            className="flex-1 theme-input rounded-xl px-3 py-2 text-sm"
                             placeholder="Stream title"
                         />
                         <select
                             value={accessMode}
                             onChange={(e) => setAccessMode(e.target.value as any)}
-                            className="bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-sm"
+                            className="theme-input rounded-xl px-3 py-2 text-sm"
                         >
                             <option value="public">Public</option>
                             <option value="private">Private</option>
@@ -161,12 +161,12 @@ export const LiveStreamPage = () => {
                             type="number"
                             value={price}
                             onChange={(e) => setPrice(Number(e.target.value))}
-                            className="w-24 bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-sm"
+                            className="w-24 theme-input rounded-xl px-3 py-2 text-sm"
                             placeholder="Price"
                             min={0}
                         />
                     </div>
-                    <label className="flex items-center gap-2 text-xs text-slate-400">
+                    <label className="flex items-center gap-2 text-xs theme-text-muted">
                         <input
                             type="checkbox"
                             checked={isRecordingRequested}
@@ -177,7 +177,7 @@ export const LiveStreamPage = () => {
                     {error && <div className="text-xs text-red-400">{error}</div>}
                     <button
                         onClick={handleGoLive}
-                        className="self-start bg-blue-500 hover:bg-blue-400 px-6 py-2 rounded font-bold text-xs uppercase tracking-[0.2em]"
+                        className="self-start theme-button-accent px-6 py-2.5 rounded-xl font-bold text-xs uppercase tracking-[0.2em]"
                     >
                         Go Live
                     </button>
@@ -187,19 +187,19 @@ export const LiveStreamPage = () => {
             {/* Live Room */}
             {roomId && (
                 <>
-                    <div className="text-xs text-slate-400 font-mono uppercase tracking-[0.2em]">
+                    <div className="text-xs theme-text-muted font-mono uppercase tracking-[0.2em]">
                         Room ID: {roomId} • Access: {accessMode.toUpperCase()}
                     </div>
                     <div className="grid grid-cols-2 gap-4">
-                        <div className="relative border border-blue-500/60 rounded-lg overflow-hidden h-96 bg-slate-900">
+                        <div className="relative border border-blue-500/60 rounded-2xl overflow-hidden h-96 theme-bg-surface">
                             <video ref={localVideoRef} autoPlay muted playsInline className="w-full h-full object-cover" />
-                            <div className="absolute bottom-2 left-2 bg-black/50 px-2 rounded text-xs font-mono uppercase tracking-[0.2em]">
+                            <div className="absolute bottom-2 left-2 bg-black/50 px-2 rounded text-xs font-mono uppercase tracking-[0.2em] text-white">
                                 You
                             </div>
                         </div>
-                        <div className="relative border border-fuchsia-500/60 rounded-lg overflow-hidden h-96 bg-slate-900">
+                        <div className="relative border border-fuchsia-500/60 rounded-2xl overflow-hidden h-96 theme-bg-surface">
                             <video ref={remoteVideoRef} autoPlay playsInline className="w-full h-full object-cover" />
-                            <div className="absolute bottom-2 left-2 bg-black/50 px-2 rounded text-xs font-mono uppercase tracking-[0.2em]">
+                            <div className="absolute bottom-2 left-2 bg-black/50 px-2 rounded text-xs font-mono uppercase tracking-[0.2em] text-white">
                                 Remote
                             </div>
                         </div>
@@ -211,7 +211,7 @@ export const LiveStreamPage = () => {
                                 if (peerConnection) peerConnection.close();
                                 setRoomId(null);
                             }}
-                            className="bg-red-500 hover:bg-red-400 px-6 py-2 rounded font-bold text-sm uppercase tracking-[0.2em]"
+                            className="bg-red-650 hover:bg-red-600 text-white dark:bg-red-950/40 dark:text-red-400 dark:border dark:border-red-500/20 px-6 py-2 rounded-xl font-bold text-sm uppercase tracking-[0.2em]"
                         >
                             End Stream
                         </button>
@@ -221,18 +221,18 @@ export const LiveStreamPage = () => {
                                     type="number"
                                     value={tipAmount}
                                     onChange={(e) => setTipAmount(Number(e.target.value))}
-                                    className="w-20 bg-black/40 border border-white/10 rounded-xl px-2 py-1 text-xs"
+                                    className="w-20 theme-input rounded-xl px-2 py-1 text-xs"
                                     min={1}
                                 />
                                 <button
                                     onClick={handleTip}
-                                    className="bg-emerald-500 hover:bg-emerald-400 px-4 py-1.5 rounded font-bold text-[10px] uppercase tracking-[0.2em]"
+                                    className="bg-emerald-600 hover:bg-emerald-500 text-white dark:bg-emerald-950/40 dark:text-emerald-400 dark:border dark:border-emerald-500/20 px-4 py-1.5 rounded-xl font-bold text-[10px] uppercase tracking-[0.2em]"
                                 >
                                     Tip Stream
                                 </button>
                             </div>
-                            {tipSuccess && <span className="text-emerald-400 font-mono text-xs">✓ Tip sent successfully!</span>}
-                            {tipError && <span className="text-red-400 font-mono text-xs">{tipError}</span>}
+                            {tipSuccess && <span className="text-emerald-500 dark:text-emerald-400 font-mono text-xs">✓ Tip sent successfully!</span>}
+                            {tipError && <span className="text-red-550 dark:text-red-400 font-mono text-xs">{tipError}</span>}
                         </div>
                     </div>
                 </>

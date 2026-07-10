@@ -163,7 +163,7 @@ export const PostCard = ({
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="bg-white/5 border border-white/5 rounded-3xl p-6 mb-6 hover:border-white/10 transition-all relative"
+            className="theme-card rounded-3xl p-6 mb-6 transition-all relative"
         >
             <div className="flex justify-between items-start mb-4">
                 <div className="flex items-center gap-3">
@@ -205,12 +205,12 @@ export const PostCard = ({
                         <MoreHorizontal size={20} />
                     </button>
                     {showActionsMenu && (
-                        <div className="absolute right-0 mt-2 w-48 bg-[#0a0a0f] border border-white/10 rounded-2xl p-2 shadow-2xl z-20">
+                        <div className="absolute right-0 mt-2 w-48 theme-card rounded-2xl p-2 shadow-2xl z-20">
                             {post.author?.id === currentUserId ? (
                                 <button
                                     onClick={handleDeletePost}
                                     disabled={deleting}
-                                    className="w-full flex items-center gap-2 px-3 py-2 text-xs font-mono uppercase tracking-wider text-red-400 hover:bg-white/5 rounded-xl transition-all"
+                                    className="w-full flex items-center gap-2 px-3 py-2 text-xs font-mono uppercase tracking-wider text-red-400 hover:bg-black/5 dark:hover:bg-white/5 rounded-xl transition-all"
                                 >
                                     {deleting ? (
                                         <Loader2 size={14} className="animate-spin" />
@@ -228,18 +228,18 @@ export const PostCard = ({
             </div>
 
             {post.content && (
-                <p className="text-slate-300 leading-relaxed mb-4 whitespace-pre-wrap">
+                <p className="theme-text-secondary leading-relaxed mb-4 whitespace-pre-wrap">
                     {post.content}
                 </p>
             )}
 
             {post.mediaUrl && (
-                <div className="rounded-2xl overflow-hidden mb-4 border border-white/5 aspect-video bg-slate-900 flex items-center justify-center">
+                <div className="rounded-2xl overflow-hidden mb-4 border theme-border aspect-video theme-bg-surface flex items-center justify-center">
                     <img src={post.mediaUrl} alt="Post content" className="w-full h-full object-cover" />
                 </div>
             )}
 
-            <div className="flex items-center gap-6 pt-4 border-t border-white/5">
+            <div className="flex items-center gap-6 pt-4 border-t theme-border">
                 <button 
                     onClick={handleLikeToggle}
                     className={`flex items-center gap-2 transition-colors group ${isLiked ? 'text-pink-500' : 'text-slate-400 hover:text-pink-500'}`}
@@ -265,7 +265,7 @@ export const PostCard = ({
 
             {/* Interactive Comments Container */}
             {showComments && (
-                <div className="mt-6 pt-6 border-t border-white/5 space-y-4">
+                <div className="mt-6 pt-6 border-t theme-border space-y-4">
                     <h4 className="text-xs font-mono uppercase tracking-wider text-slate-500">Comments</h4>
                     {loadingComments ? (
                         <div className="flex justify-center py-2">
@@ -442,7 +442,7 @@ export const FeedPage = ({
     return (
         <div className="mt-8">
             {/* Create Post Area */}
-            <div className="bg-white/5 border border-white/5 rounded-3xl p-6 mb-8">
+            <div className="theme-card rounded-3xl p-6 mb-8">
                 <div className="flex gap-4">
                     {userProfile?.avatarUrl ? (
                         <img src={userProfile.avatarUrl} alt="avatar" className="w-12 h-12 rounded-full object-cover border border-white/10" />
@@ -461,7 +461,7 @@ export const FeedPage = ({
                         />
                         {/* Preview attached media */}
                         {attachedMediaUrl && (
-                            <div className="mt-3 relative rounded-2xl overflow-hidden aspect-video bg-slate-900 border border-white/10 group max-h-48">
+                            <div className="mt-3 relative rounded-2xl overflow-hidden aspect-video theme-bg-surface border theme-border group max-h-48">
                                 <img src={attachedMediaUrl} alt="Preview" className="w-full h-full object-cover" />
                                 <button 
                                     onClick={() => setAttachedMediaUrl(null)}
@@ -478,7 +478,7 @@ export const FeedPage = ({
                         {error}
                     </div>
                 )}
-                <div className="flex justify-between items-center mt-4 pt-4 border-t border-white/5">
+                <div className="flex justify-between items-center mt-4 pt-4 border-t theme-border">
                     <div className="flex gap-4">
                         <button 
                             type="button"
@@ -503,7 +503,7 @@ export const FeedPage = ({
                     <button
                         onClick={handleCreatePost}
                         disabled={!canPost || creating || uploadingMedia}
-                        className="px-6 py-2 bg-white text-black font-bold rounded-full hover:bg-blue-400 transition-all disabled:opacity-60 disabled:hover:bg-white flex items-center gap-2"
+                        className="px-6 py-2 theme-button-accent font-bold rounded-full transition-all disabled:opacity-60 flex items-center gap-2"
                     >
                         {creating && <Loader2 size={16} className="animate-spin" />}
                         <span>Post</span>
@@ -530,7 +530,7 @@ export const FeedPage = ({
                 {!loading && hasMore && (
                     <button
                         onClick={() => setPage(p => p + 1)}
-                        className="px-4 py-2 text-xs font-mono uppercase tracking-[0.2em] bg-white/5 border border-white/10 rounded-full hover:bg-white/10"
+                        className="px-4 py-2 text-xs font-mono uppercase tracking-[0.2em] theme-button-secondary rounded-full"
                     >
                         Load more
                     </button>

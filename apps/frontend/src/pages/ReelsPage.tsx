@@ -308,14 +308,14 @@ const ReelPlayer = ({
                         animate={{ y: 0 }}
                         exit={{ y: '100%' }}
                         transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-                        className="absolute inset-x-0 bottom-0 bg-[#07070a]/95 border-t border-white/10 rounded-t-3xl h-[60%] flex flex-col z-20 pb-safe"
+                        className="absolute inset-x-0 bottom-0 theme-bg-surface border-t theme-border rounded-t-3xl h-[60%] flex flex-col z-20 pb-safe shadow-2xl"
                         onClick={(e) => e.stopPropagation()}
                     >
-                        <div className="p-4 border-b border-white/5 flex justify-between items-center">
-                            <span className="text-sm font-bold text-white font-mono uppercase tracking-wider">Comments</span>
+                        <div className="p-4 border-b theme-border flex justify-between items-center">
+                            <span className="text-sm font-bold theme-text-primary font-mono uppercase tracking-wider">Comments</span>
                             <button 
                                 onClick={() => setShowComments(false)}
-                                className="p-1 rounded-full hover:bg-white/10 text-slate-400 hover:text-white transition-colors"
+                                className="p-1 rounded-full hover:bg-black/10 dark:hover:bg-white/10 theme-text-muted hover:theme-text-primary transition-colors"
                             >
                                 <X size={20} />
                             </button>
@@ -324,10 +324,10 @@ const ReelPlayer = ({
                         <div className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar">
                             {loadingComments ? (
                                 <div className="flex justify-center items-center h-full">
-                                    <Loader2 className="animate-spin text-blue-500" size={24} />
+                                    <Loader2 className="animate-spin theme-text-accent" size={24} />
                                 </div>
                             ) : comments.length === 0 ? (
-                                <div className="text-center py-10 text-slate-500 font-mono text-xs">
+                                <div className="text-center py-10 theme-text-muted font-mono text-xs">
                                     No comments yet. Start the conversation!
                                 </div>
                             ) : (
@@ -335,7 +335,7 @@ const ReelPlayer = ({
                                     const cName = comment.author?.displayName || comment.author?.username || 'Anonymous';
                                     return (
                                         <div key={comment.id} className="flex gap-3 text-sm items-start">
-                                            <div className="w-8 h-8 rounded-full overflow-hidden bg-slate-800 border border-white/5 flex-shrink-0">
+                                            <div className="w-8 h-8 rounded-full overflow-hidden theme-bg-secondary border theme-border flex-shrink-0">
                                                 {comment.author?.avatarUrl ? (
                                                     <img src={comment.author.avatarUrl} alt="avatar" className="w-full h-full object-cover" />
                                                 ) : (
@@ -344,14 +344,14 @@ const ReelPlayer = ({
                                                     </div>
                                                 )}
                                             </div>
-                                            <div className="flex-1 bg-white/5 border border-white/5 rounded-2xl px-4 py-2">
+                                            <div className="flex-1 theme-bg-secondary border theme-border rounded-2xl px-4 py-2">
                                                 <div className="flex justify-between items-center mb-1">
-                                                    <span className="font-bold text-white text-xs">{cName}</span>
-                                                    <span className="text-[9px] text-slate-500 font-mono">
+                                                    <span className="font-bold theme-text-primary text-xs">{cName}</span>
+                                                    <span className="text-[9px] theme-text-muted font-mono">
                                                         {new Date(comment.createdAt).toLocaleDateString()}
                                                     </span>
                                                 </div>
-                                                <p className="text-slate-300 text-xs">{comment.content}</p>
+                                                <p className="theme-text-secondary text-xs">{comment.content}</p>
                                             </div>
                                         </div>
                                     );
@@ -360,18 +360,18 @@ const ReelPlayer = ({
                         </div>
 
                         {/* Comment Input */}
-                        <form onSubmit={handleSendComment} className="p-4 border-t border-white/5 bg-[#0a0a0f] flex gap-2">
+                        <form onSubmit={handleSendComment} className="p-4 border-t theme-border theme-bg-secondary flex gap-2">
                             <input
                                 type="text"
                                 placeholder="Add a comment..."
                                 value={commentInput}
                                 onChange={(e) => setCommentInput(e.target.value)}
-                                className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-blue-500/50"
+                                className="flex-1 theme-input rounded-xl px-4 py-2 text-sm"
                             />
                             <button
                                 type="submit"
                                 disabled={!commentInput.trim() || sendingComment}
-                                className="bg-blue-500 text-black p-2.5 rounded-xl hover:bg-blue-400 transition-colors disabled:opacity-50"
+                                className="theme-button-accent p-2.5 rounded-xl transition-colors disabled:opacity-50"
                             >
                                 <Send size={16} />
                             </button>
@@ -427,7 +427,7 @@ export const ReelsPage = ({
     if (loading) {
         return (
             <div className="flex items-center justify-center h-full pt-20">
-                <Loader2 className="animate-spin text-blue-500" size={32} />
+                <Loader2 className="animate-spin theme-text-accent" size={32} />
             </div>
         );
     }
@@ -435,7 +435,7 @@ export const ReelsPage = ({
     if (error) {
         return (
             <div className="flex items-center justify-center h-full p-4 text-center">
-                <div className="bg-red-500/10 border border-red-500/50 text-red-400 p-4 rounded-xl text-sm">
+                <div className="bg-red-500/10 border border-red-500/30 text-red-500 dark:text-red-400 p-4 rounded-xl text-sm">
                     {error}
                 </div>
             </div>
@@ -445,9 +445,9 @@ export const ReelsPage = ({
     if (reels.length === 0) {
         return (
             <div className="flex flex-col items-center justify-center h-full p-4 text-center">
-                <Zap size={48} className="text-slate-600 mb-4" />
-                <p className="text-slate-500 font-mono text-sm uppercase tracking-widest">No Reels Found</p>
-                <p className="text-slate-600 text-xs mt-2">Be the first to create one!</p>
+                <Zap size={48} className="theme-text-muted mb-4 opacity-50" />
+                <p className="theme-text-secondary font-mono text-sm uppercase tracking-widest">No Reels Found</p>
+                <p className="theme-text-muted text-xs mt-2">Be the first to create one!</p>
             </div>
         );
     }

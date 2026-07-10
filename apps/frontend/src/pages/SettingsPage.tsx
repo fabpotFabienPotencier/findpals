@@ -142,16 +142,16 @@ export const SettingsPage = ({
             <h2 className="text-xl font-bold tracking-widest uppercase text-slate-400">Settings Console</h2>
             
             {/* Profile Settings Section */}
-            <div className="bg-white/5 border border-white/10 rounded-3xl p-6">
-                <h3 className="text-sm font-mono uppercase tracking-[0.2em] text-slate-500 mb-6">Edit Profile</h3>
+            <div className="theme-card rounded-3xl p-6">
+                <h3 className="text-sm font-mono uppercase tracking-[0.2em] theme-text-muted mb-6">Edit Profile</h3>
                 
                 <form onSubmit={handleSaveProfile} className="space-y-6">
                     <div className="flex flex-col md:flex-row gap-6 items-center">
-                        <div className="relative w-24 h-24 rounded-full bg-slate-800 border-2 border-blue-500/30 flex items-center justify-center overflow-hidden group">
+                        <div className="relative w-24 h-24 rounded-full theme-bg-surface border-2 border-blue-500/30 flex items-center justify-center overflow-hidden group">
                             {avatarUrl ? (
                                 <img src={avatarUrl} alt="avatar" className="w-full h-full object-cover" />
                             ) : (
-                                <Camera size={24} className="text-slate-500" />
+                                <Camera size={24} className="theme-text-muted" />
                             )}
                             <label className="absolute inset-0 bg-black/60 flex items-center justify-center cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity">
                                 <Camera size={18} className="text-white" />
@@ -166,24 +166,24 @@ export const SettingsPage = ({
 
                         <div className="flex-1 w-full space-y-4">
                             <div>
-                                <label className="block text-xs font-mono uppercase text-slate-500 mb-1">Display Name</label>
+                                <label className="block text-xs font-mono uppercase theme-text-muted mb-1">Display Name</label>
                                 <input
                                     type="text"
                                     value={displayName}
                                     onChange={(e) => setDisplayName(e.target.value)}
                                     placeholder="your alias"
-                                    className="w-full bg-[#0a0b1e]/50 border border-white/10 rounded-xl px-4 py-2 text-sm text-white focus:border-blue-500 focus:outline-none transition-colors"
+                                    className="w-full theme-input rounded-xl px-4 py-2 text-sm transition-colors"
                                 />
                             </div>
 
                             <div>
-                                <label className="block text-xs font-mono uppercase text-slate-500 mb-1">Bio</label>
+                                <label className="block text-xs font-mono uppercase theme-text-muted mb-1">Bio</label>
                                 <textarea
                                     value={bio}
                                     onChange={(e) => setBio(e.target.value)}
                                     placeholder="write your cyber manifesto..."
                                     rows={3}
-                                    className="w-full bg-[#0a0b1e]/50 border border-white/10 rounded-xl px-4 py-2 text-sm text-white focus:border-blue-500 focus:outline-none transition-colors resize-none"
+                                    className="w-full theme-input rounded-xl px-4 py-2 text-sm transition-colors resize-none"
                                 />
                             </div>
                         </div>
@@ -198,7 +198,7 @@ export const SettingsPage = ({
                         <button
                             type="submit"
                             disabled={savingProfile || uploadingAvatar}
-                            className="px-6 py-2 bg-blue-500 text-black font-bold rounded-xl hover:bg-blue-400 transition-all disabled:opacity-50 text-sm"
+                            className="px-6 py-2 theme-button-accent font-bold rounded-xl transition-all disabled:opacity-50 text-sm"
                         >
                             {savingProfile ? 'Saving...' : 'Save Profile'}
                         </button>
@@ -207,11 +207,11 @@ export const SettingsPage = ({
             </div>
 
             {/* Security Section */}
-            <div className="bg-white/5 border border-white/10 rounded-3xl p-6 space-y-6">
-                <h3 className="text-sm font-mono uppercase tracking-[0.2em] text-slate-500">Security</h3>
+            <div className="theme-card rounded-3xl p-6 space-y-6">
+                <h3 className="text-sm font-mono uppercase tracking-[0.2em] theme-text-muted">Security</h3>
 
                 {/* Change Password */}
-                <div className="border border-white/5 rounded-2xl p-4">
+                <div className="border theme-border rounded-2xl p-4">
                     <button
                         onClick={() => setShowPasswordSection(!showPasswordSection)}
                         className="flex items-center gap-3 text-sm font-bold text-white w-full text-left"
@@ -220,18 +220,18 @@ export const SettingsPage = ({
                     </button>
                     {showPasswordSection && (
                         <div className="mt-4 space-y-3">
-                            <p className="text-xs text-slate-500">Enter your email to receive a password reset link.</p>
+                            <p className="text-xs theme-text-muted">Enter your email to receive a password reset link.</p>
                             <input
                                 type="email"
                                 value={forgotPasswordEmail}
                                 onChange={(e) => setForgotPasswordEmail(e.target.value)}
                                 placeholder="your-email@example.com"
-                                className="w-full bg-[#0a0b1e]/50 border border-white/10 rounded-xl px-4 py-2 text-sm text-white focus:border-blue-500 focus:outline-none transition-colors"
+                                className="w-full theme-input rounded-xl px-4 py-2 text-sm transition-colors"
                             />
                             <button
                                 onClick={handleForgotPassword}
                                 disabled={forgotPasswordLoading || !forgotPasswordEmail.trim()}
-                                className="px-4 py-2 bg-blue-500/20 text-blue-400 border border-blue-500/30 rounded-xl text-xs font-bold hover:bg-blue-500/30 transition-all disabled:opacity-50"
+                                className="px-4 py-2 theme-button-secondary rounded-xl text-xs font-bold transition-all disabled:opacity-50"
                             >
                                 {forgotPasswordLoading ? 'Sending...' : 'Send Reset Link'}
                             </button>
@@ -245,7 +245,7 @@ export const SettingsPage = ({
                 </div>
 
                 {/* Two-Factor Authentication */}
-                <div className="border border-white/5 rounded-2xl p-4">
+                <div className="border theme-border rounded-2xl p-4">
                     <button
                         onClick={() => setShow2FASection(!show2FASection)}
                         className="flex items-center gap-3 text-sm font-bold text-white w-full text-left"
@@ -254,16 +254,16 @@ export const SettingsPage = ({
                     </button>
                     {show2FASection && (
                         <div className="mt-4 space-y-3">
-                            <p className="text-xs text-slate-500">Set up TOTP-based 2FA using an authenticator app.</p>
+                            <p className="text-xs theme-text-muted">Set up TOTP-based 2FA using an authenticator app.</p>
                             <button
                                 onClick={handleSetup2FA}
                                 disabled={twoFALoading}
-                                className="px-4 py-2 bg-blue-500/20 text-blue-400 border border-blue-500/30 rounded-xl text-xs font-bold hover:bg-blue-500/30 transition-all disabled:opacity-50"
+                                className="px-4 py-2 theme-button-secondary rounded-xl text-xs font-bold transition-all disabled:opacity-50"
                             >
                                 {twoFALoading ? 'Setting up...' : 'Enable 2FA'}
                             </button>
                             {twoFAResult && !twoFAResult.error && (
-                                <div className="bg-black/40 rounded-xl p-4 border border-white/10">
+                                <div className="theme-bg-surface rounded-xl p-4 border theme-border">
                                     <p className="text-xs text-slate-400 mb-2">Scan this secret with your authenticator app:</p>
                                     <p className="text-sm font-mono text-blue-400 break-all">{twoFAResult.secret || twoFAResult.otpauthUrl || JSON.stringify(twoFAResult)}</p>
                                 </div>
@@ -277,10 +277,10 @@ export const SettingsPage = ({
             </div>
 
             {/* Sessions Section */}
-            <div className="bg-white/5 border border-white/10 rounded-3xl p-6">
-                <h3 className="text-sm font-mono uppercase tracking-[0.2em] text-slate-500 mb-4">Active Sessions</h3>
+            <div className="theme-card rounded-3xl p-6">
+                <h3 className="text-sm font-mono uppercase tracking-[0.2em] theme-text-muted mb-4">Active Sessions</h3>
                 {loadingSessions && (
-                    <div className="flex items-center gap-2 text-xs text-slate-500 font-mono uppercase tracking-[0.2em]">
+                    <div className="flex items-center gap-2 text-xs theme-text-muted font-mono uppercase tracking-[0.2em]">
                         <Loader2 className="animate-spin" size={18} /> Scanning devices...
                     </div>
                 )}
@@ -290,12 +290,12 @@ export const SettingsPage = ({
                 {!loadingSessions && !sessionsError && (
                     <div className="space-y-3">
                         {sessions.map(session => (
-                            <div key={session.id} className="flex items-center justify-between bg-black/40 border border-white/5 rounded-2xl px-4 py-3">
+                            <div key={session.id} className="flex items-center justify-between theme-bg-surface border theme-border rounded-2xl px-4 py-3">
                                 <div className="flex flex-col">
-                                    <span className="text-xs font-mono text-slate-300">
+                                    <span className="text-xs font-mono theme-text-secondary">
                                         {session.userAgent || 'Unknown device'}
                                     </span>
-                                    <span className="text-[10px] font-mono text-slate-500">
+                                    <span className="text-[10px] font-mono theme-text-muted">
                                         IP: {session.ipAddress || 'n/a'} • Created: {new Date(session.createdAt).toLocaleString()}
                                     </span>
                                 </div>
@@ -332,14 +332,14 @@ export const SettingsPage = ({
             </div>
 
             {/* Logout */}
-            <div className="bg-red-500/5 border border-red-500/20 rounded-3xl p-6">
+            <div className="bg-red-500/5 dark:bg-red-500/10 border border-red-500/20 rounded-3xl p-6">
                 <button
                     onClick={onLogout}
-                    className="flex items-center gap-3 text-red-400 hover:text-red-300 font-bold transition-colors w-full"
+                    className="flex items-center gap-3 text-red-500 hover:text-red-400 font-bold transition-colors w-full"
                 >
                     <LogOut size={20} /> Sign Out of FindPals
                 </button>
-                <p className="text-xs text-slate-600 mt-2">This will clear your encrypted session from this device.</p>
+                <p className="text-xs theme-text-muted mt-2">This will clear your encrypted session from this device.</p>
             </div>
         </div>
     );

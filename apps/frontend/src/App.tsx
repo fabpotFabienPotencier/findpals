@@ -23,6 +23,28 @@ function App() {
     const [userProfile, setUserProfile] = useState<any>(null);
     const [viewUserId, setViewUserId] = useState<string | null>(null);
     const [activeChat, setActiveChat] = useState<{ id: string; name: string } | null>(null);
+    const [theme, setTheme] = useState<'light' | 'dark'>('dark');
+
+    useEffect(() => {
+        const savedTheme = (localStorage.getItem('findpals-theme') as 'light' | 'dark') || 'dark';
+        setTheme(savedTheme);
+        if (savedTheme === 'dark') {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    }, []);
+
+    const toggleTheme = () => {
+        const nextTheme = theme === 'dark' ? 'light' : 'dark';
+        setTheme(nextTheme);
+        localStorage.setItem('findpals-theme', nextTheme);
+        if (nextTheme === 'dark') {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    };
 
     const fetchProfile = async () => {
         try {
@@ -140,6 +162,8 @@ function App() {
             currentPage={currentPage}
             setCurrentPage={(page: any) => setCurrentPage(page)}
             userProfile={userProfile}
+            theme={theme}
+            toggleTheme={toggleTheme}
         >
             {renderPage()}
         </MainLayout>
