@@ -435,6 +435,7 @@ export const FeedPage = ({
     };
     const [attachedMediaUrl, setAttachedMediaUrl] = useState<string | null>(null);
     const [uploadingMedia, setUploadingMedia] = useState(false);
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
     const canPost = useMemo(() => composerText.trim().length > 0 || !!attachedMediaUrl, [composerText, attachedMediaUrl]);
 
