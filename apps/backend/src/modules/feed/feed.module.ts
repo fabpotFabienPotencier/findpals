@@ -7,11 +7,12 @@ import { Post } from '../../entities/post.entity';
 import { Comment } from '../../entities/comment.entity';
 import { Like } from '../../entities/like.entity';
 import { User } from '../../entities/user.entity';
+import { Transaction } from '../../entities/economy.entity';
 import { NotificationsModule } from '../notifications/notifications.module';
 
 @Module({
     imports: [
-        TypeOrmModule.forFeature([Post, Comment, Like, User]),
+        TypeOrmModule.forFeature([Post, Comment, Like, User, Transaction]),
         JwtModule.register({ secret: process.env.JWT_SECRET || 'fallback-secret' }),
         NotificationsModule,
     ],

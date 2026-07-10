@@ -86,10 +86,12 @@ export const feed = {
         api.get('/feed', { params: { page, limit } }),
     getReels: (page: number = 1, limit: number = 10) =>
         api.get('/feed/reels', { params: { page, limit } }),
+    getStories: () =>
+        api.get('/feed/stories'),
     getUserPosts: (userId: string, page: number = 1, limit: number = 10) =>
         api.get(`/feed/user/${userId}`, { params: { page, limit } }),
-    create: (authorId: string, content: string, type: 'post' | 'reel' | 'story' = 'post', mediaUrl?: string) =>
-        api.post('/feed/post', { authorId, content, type, mediaUrl }),
+    create: (authorId: string, content: string, type: 'post' | 'reel' | 'story' = 'post', mediaUrl?: string, isLocked: boolean = false, price: number = 0) =>
+        api.post('/feed/post', { authorId, content, type, mediaUrl, isLocked, price }),
     deletePost: (postId: string) =>
         api.delete(`/feed/post/${postId}`),
     likePost: (postId: string) =>
@@ -98,6 +100,8 @@ export const feed = {
         api.delete(`/feed/post/${postId}/like`),
     isLiked: (postId: string) =>
         api.get(`/feed/post/${postId}/is-liked`),
+    unlockPost: (postId: string) =>
+        api.post(`/feed/post/${postId}/unlock`),
     comment: (postId: string, authorId: string, content: string) =>
         api.post('/feed/comment', { postId, authorId, content }),
     getComments: (postId: string) =>

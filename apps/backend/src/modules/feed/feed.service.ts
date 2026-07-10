@@ -1,10 +1,11 @@
 import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, MoreThan } from 'typeorm';
 import { Post } from '../../entities/post.entity';
 import { Comment } from '../../entities/comment.entity';
 import { Like } from '../../entities/like.entity';
 import { User } from '../../entities/user.entity';
+import { Transaction } from '../../entities/economy.entity';
 import { NotificationsService } from '../notifications/notifications.service';
 
 @Injectable()
@@ -18,15 +19,26 @@ export class FeedService {
         private readonly likeRepository: Repository<Like>,
         @InjectRepository(User)
         private readonly userRepository: Repository<User>,
+        @InjectRepository(Transaction)
+        private readonly transactionRepository: Repository<Transaction>,
         private readonly notificationsService: NotificationsService,
     ) { }
 
-    async createPost(authorId: string, content: string, type: 'post' | 'reel' | 'story' = 'post', mediaUrl?: string) {
+    async createPost(
+        authorId: string, 
+        content: string, 
+        type: 'post' | 'reel' | 'story' = 'post', 
+        mediaUrl?: string,
+        isLocked: boolean = false,
+        price: number = 0
+    ) {
         const post = new Post();
         post.author = { id: authorId } as any;
         post.content = content;
         post.type = type;
         post.mediaUrl = mediaUrl;
+        post.isLocked = isLocked;
+        post.price = price;
         const saved = await this.postRepository.save(post);
 
         // Increment the user's denormalized postsCount
@@ -43,34 +55,82 @@ export class FeedService {
         return { success: true };
     }
 
-    async getFeed(page: number = 1, limit: number = 10) {
-        return this.postRepository.find({
+    async isUnlocked(post: Post, userId?: string): Promise<boolean> {
+        if (!post.isLocked || post.price <= 0) return true;
+        if (!userId) return false;
+        if (post.authorId === userId) return true;
+
+        // Check if there is an unlock transaction reference
+        const tx = await this.transactionRepository.findOne({
+            where: {
+                fromUser: { id: userId },
+                reference: `post-unlock:${post.id}`,
+            },
+        });
+        return !!tx;
+    }
+
+    async checkAndMaskPost(post: any, userId?: string): Promise<any> {
+        const unlocked = await this.isUnlocked(post, userId);
+        if (!unlocked) {
+            return {
+                ...post,
+                mediaUrl: null, // Mask content
+                lockedForUser: true,
+            };
+        }
+        return {
+            ...post,
+            lockedForUser: false,
+        };
+    }
+
+    async getFeed(requestingUserId?: string, page: number = 1, limit: number = 10) {
+        const posts = await this.postRepository.find({
             where: { type: 'post' },
             order: { createdAt: 'DESC' },
             skip: (page - 1) * limit,
             take: limit,
             relations: ['author'],
         });
+        return Promise.all(posts.map(post => this.checkAndMaskPost(post, requestingUserId)));
     }
 
-    async getReels(page: number = 1, limit: number = 10) {
-        return this.postRepository.find({
+    async getReels(requestingUserId?: string, page: number = 1, limit: number = 10) {
+        const reels = await this.postRepository.find({
             where: { type: 'reel' },
             order: { createdAt: 'DESC' },
             skip: (page - 1) * limit,
             take: limit,
             relations: ['author'],
         });
+        return Promise.all(reels.map(reel => this.checkAndMaskPost(reel, requestingUserId)));
     }
 
-    async getUserPosts(userId: string, page: number = 1, limit: number = 10) {
-        return this.postRepository.find({
+    async getStories(requestingUserId?: string) {
+        const twentyFourHoursAgo = new Date();
+        twentyFourHoursAgo.setHours(twentyFourHoursAgo.getHours() - 24);
+
+        const stories = await this.postRepository.find({
+            where: {
+                type: 'story',
+                createdAt: MoreThan(twentyFourHoursAgo),
+            },
+            order: { createdAt: 'DESC' },
+            relations: ['author'],
+        });
+        return Promise.all(stories.map(story => this.checkAndMaskPost(story, requestingUserId)));
+    }
+
+    async getUserPosts(userId: string, requestingUserId?: string, page: number = 1, limit: number = 10) {
+        const posts = await this.postRepository.find({
             where: { authorId: userId },
             order: { createdAt: 'DESC' },
             skip: (page - 1) * limit,
             take: limit,
             relations: ['author'],
         });
+        return Promise.all(posts.map(post => this.checkAndMaskPost(post, requestingUserId)));
     }
 
     async likePost(postId: string, userId: string) {
@@ -147,5 +207,50 @@ export class FeedService {
             relations: ['author'],
             order: { createdAt: 'ASC' }
         });
+    }
+
+    async unlockPost(postId: string, userId: string) {
+        const post = await this.postRepository.findOne({ where: { id: postId }, relations: ['author'] });
+        if (!post) throw new NotFoundException('Post not found');
+
+        const alreadyUnlocked = await this.isUnlocked(post, userId);
+        if (alreadyUnlocked) return { success: true, message: 'Already unlocked' };
+
+        const buyer = await this.userRepository.findOne({ where: { id: userId } });
+        if (!buyer) throw new NotFoundException('User not found');
+
+        if (Number(buyer.walletBalance) < Number(post.price)) {
+            throw new ConflictException('Insufficient wallet balance');
+        }
+
+        const creator = await this.userRepository.findOne({ where: { id: post.authorId } });
+        if (!creator) throw new NotFoundException('Creator not found');
+
+        // Transfer funds
+        buyer.walletBalance = Number(buyer.walletBalance) - Number(post.price);
+        creator.walletBalance = Number(creator.walletBalance) + Number(post.price);
+
+        await this.userRepository.save(buyer);
+        await this.userRepository.save(creator);
+
+        // Record Transaction
+        const tx = new Transaction();
+        tx.amount = post.price;
+        tx.type = 'tip';
+        tx.reference = `post-unlock:${post.id}`;
+        tx.fromUser = buyer;
+        tx.toUser = creator;
+        await this.transactionRepository.save(tx);
+
+        // Notify Creator
+        const buyerName = buyer.displayName || buyer.username || 'Someone';
+        await this.notificationsService.createNotification(
+            post.authorId,
+            'like',
+            `${buyerName} unlocked your premium post for $${post.price}`,
+            postId,
+        );
+
+        return { success: true };
     }
 }
